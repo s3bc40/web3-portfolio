@@ -1,0 +1,9 @@
+tabWidth = 2
+semicolon = true
+trailingComma = "all"
+semi = false
+printWidth = 80
+singleQuote = false
+jsxSingleQuote = false
+bracketSpacing = true
+endOfLine = "lf"
