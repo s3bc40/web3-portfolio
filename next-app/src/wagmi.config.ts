@@ -9,7 +9,7 @@ import {
 
 export const wagmiConfig = getDefaultConfig({
     appName: 'Portfolio Web3',
-    projectId: 'YOUR_PROJECT_ID',
+    projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
     chains: [
         anvil,
         mainnet,

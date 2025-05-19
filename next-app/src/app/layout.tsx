@@ -1,10 +1,22 @@
+/**
+ * Layout component for the entire application.
+ * @param {React.ReactNode} children - The child components to be rendered within the layout.
+ * @returns {JSX.Element} The layout component.
+ */
+
 import type { Metadata } from "next"
 import "./globals.css"
 import "@rainbow-me/rainbowkit/styles.css"
-import Link from "next/link"
-import AvatarBrandSvg from "@/ui/AvatarBrandSvg"
 import { Providers } from "@/app/providers"
-import { ConnectButton } from "@rainbow-me/rainbowkit"
+import Navbar from "@/ui/Navbar"
+import { Roboto } from "next/font/google"
+
+// Font imports
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["100", "300", "400", "500", "700", "900"],
+  variable: "--font-roboto",
+})
 
 export const metadata: Metadata = {
   title: "s3bc40 portfolio",
@@ -17,21 +29,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={roboto.className}>
       <body className="bg-gray-900">
         {/* Providers for Web3 configs */}
         <Providers>
           {/* Navbar */}
-          <nav className="flex w-full items-center justify-between gap-4 bg-gray-800 p-4">
-            {/* Icon top left */}
-            <Link href="/">
-              <AvatarBrandSvg className="h-10 w-10 fill-white transition-colors hover:fill-yellow-500" />
-            </Link>
-            {/* Connect button wallet */}
-            <ConnectButton />
-          </nav>
+          <Navbar />
           {/* Main content */}
-          {children}
+          <main>{children}</main>
         </Providers>
       </body>
     </html>
