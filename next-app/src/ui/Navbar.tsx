@@ -5,9 +5,9 @@
  * @example <Navbar />
  */
 
-import { ConnectButton } from "@rainbow-me/rainbowkit"
-import Link from "next/link"
-import AvatarBrandSvg from "@/ui/AvatarBrandSvg"
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import Link from "next/link";
+import AvatarBrandSvg from "@/ui/AvatarBrandSvg";
 
 export default function Navbar() {
   return (
@@ -19,5 +19,5 @@ export default function Navbar() {
       {/* Connect button wallet */}
       <ConnectButton />
     </nav>
-  )
+  );
 }

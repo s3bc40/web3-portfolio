@@ -1,7 +1,6 @@
 tabWidth = 2
-semicolon = true
+semi = true
 trailingComma = "all"
-semi = false
 printWidth = 80
 singleQuote = false
 jsxSingleQuote = false

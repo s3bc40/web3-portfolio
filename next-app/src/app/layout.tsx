@@ -4,29 +4,29 @@
  * @returns {JSX.Element} The layout component.
  */
 
-import type { Metadata } from "next"
-import "./globals.css"
-import "@rainbow-me/rainbowkit/styles.css"
-import { Providers } from "@/app/providers"
-import Navbar from "@/ui/Navbar"
-import { Roboto } from "next/font/google"
+import type { Metadata } from "next";
+import "./globals.css";
+import "@rainbow-me/rainbowkit/styles.css";
+import { Providers } from "@/app/providers";
+import Navbar from "@/ui/Navbar";
+import { Roboto } from "next/font/google";
 
 // Font imports
 const roboto = Roboto({
   subsets: ["latin"],
   weight: ["100", "300", "400", "500", "700", "900"],
   variable: "--font-roboto",
-})
+});
 
 export const metadata: Metadata = {
   title: "s3bc40 portfolio",
   description: "Welcome to my portfolio website",
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en" className={roboto.className}>
@@ -40,5 +40,5 @@ export default function RootLayout({
         </Providers>
       </body>
     </html>
-  )
+  );
 }
