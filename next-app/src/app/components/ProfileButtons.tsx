@@ -4,6 +4,7 @@
 "use client";
 
 import { ButtonIcon } from "@/ui/Buttons";
+import { SOCIAL_MEDIA_LINKS } from "@/utils/constants";
 import {
   FaGithub,
   FaHeartCircleBolt,
@@ -22,21 +23,22 @@ import { useAccount } from "wagmi";
  */
 export default function ProfileButtons() {
   const { isConnected } = useAccount();
+  const { github, xTwitter, telegram } = SOCIAL_MEDIA_LINKS;
 
   const btnLinkList = [
     {
       icon: <FaGithub className="h-8 w-8 fill-white" />,
-      link: "https://github.com/s3bc40",
+      link: github,
       name: "Github",
     },
     {
       icon: <FaXTwitter className="h-8 w-8 fill-white" />,
-      link: "https://twitter.com/s3bc40",
+      link: xTwitter,
       name: "Twitter",
     },
     {
       icon: <FaTelegram className="h-8 w-8 fill-white" />,
-      link: "https://t.me/s3bc40",
+      link: telegram,
       name: "Telegram",
     },
     {

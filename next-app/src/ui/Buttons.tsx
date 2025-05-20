@@ -40,7 +40,7 @@ type ButtonProps = {
 export function ButtonIcon({
   item,
   disabled = false,
-  disabledText = "Connect your wallet to donate",
+  disabledText = "Connect your wallet",
   twWidth = "w-16",
   twHeight = "h-16",
 }: ButtonProps) {
@@ -65,7 +65,7 @@ export function ButtonIcon({
       </Link>
       {/* Tooltip for disabled button */}
       {disabled && (
-        <div className="absolute bottom-0 left-1/2 mb-[-50px] w-max translate-x-[-50%] rounded bg-gray-800 p-2 text-white opacity-0 transition select-none group-hover:opacity-100 group-active:opacity-100">
+        <div className="absolute bottom-0 left-1/2 mb-[-50px] w-max translate-x-[-50%] rounded bg-gray-700 p-2 text-xs text-white opacity-0 transition select-none group-hover:opacity-100 group-active:opacity-100 md:text-sm">
           {disabledText}
         </div>
       )}

@@ -6,13 +6,13 @@ import {
   FaUserCheck,
 } from "react-icons/fa6";
 
-export default function AboutContainer() {
+export default function AboutSection() {
   const aboutItems = [
     {
       id: "whoami",
       title: "Who am I?",
       description:
-        "I am a passionate developer with a focus on smart contracts and security research. I love exploring new technologies and contributing to open-source projects.",
+        "I am a developer with a focus on smart contracts and security research. I love exploring new technologies and contributing to open-source projects.",
       icon: (
         <FaCircleQuestion className="fill-gray-300 text-4xl transition-transform group-hover:rotate-45 group-active:rotate-45" />
       ),
@@ -21,7 +21,7 @@ export default function AboutContainer() {
       id: "whatido",
       title: "What do I do?",
       description:
-        "Proficient in Solidity, JavaScript, and Python. Experienced in smart contract development, security audits, and blockchain technology.",
+        "I specialize in smart contract development, security audits, and building decentralized applications (dApps). I also have experience with web development.",
       icon: (
         <FaComputer className="fill-gray-300 text-4xl transition-transform group-hover:scale-110 group-active:scale-110" />
       ),
@@ -30,7 +30,7 @@ export default function AboutContainer() {
       id: "howdoi",
       title: "How do I work?",
       description:
-        "Blockchain technology, decentralized finance (DeFi), and security research.",
+        "I follow best practices in software development, including version control and code reviews. I prioritize security and readability in my projects.",
       icon: (
         <FaGear className="fill-gray-300 text-4xl transition-transform group-hover:rotate-360 group-active:rotate-360" />
       ),
@@ -46,7 +46,7 @@ export default function AboutContainer() {
     },
   ];
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
       {aboutItems.map((item) => (
         <Card
           key={item.id}
@@ -55,6 +55,6 @@ export default function AboutContainer() {
           icon={item.icon}
         />
       ))}
-    </div>
+    </section>
   );
 }

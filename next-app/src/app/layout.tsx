@@ -10,6 +10,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { Providers } from "@/app/providers";
 import Navbar from "@/ui/Navbar";
 import { Roboto } from "next/font/google";
+import Footer from "@/ui/Footer";
 
 // Font imports
 const roboto = Roboto({
@@ -37,6 +38,8 @@ export default function RootLayout({
           <Navbar />
           {/* Main content */}
           <main>{children}</main>
+          {/* Footer */}
+          <Footer />
         </Providers>
       </body>
     </html>

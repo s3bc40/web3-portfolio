@@ -1,6 +1,7 @@
 "use client";
 
 import { SVGProps } from "react";
+
 export default function AvatarBrandSvg(props: SVGProps<SVGSVGElement>) {
   return (
     <svg

@@ -7,7 +7,7 @@
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
-import AvatarBrandSvg from "@/ui/AvatarBrandSvg";
+import AvatarBrandSvg from "@/ui/svg/AvatarBrandSvg";
 
 export default function Navbar() {
   return (

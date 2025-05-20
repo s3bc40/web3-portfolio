@@ -7,9 +7,9 @@ import ProfileButtons from "@/app/components/ProfileButtons";
 import AvatarCircle from "@/ui/AvatarCircle";
 import { Heading1, Heading2, Body1 } from "@/ui/Typography";
 
-export default function ProfileContainer() {
+export default function ProfileSection() {
   return (
-    <div className="flex flex-col items-center gap-4 md:flex-row md:items-center">
+    <section className="flex flex-col items-center gap-4 md:flex-row md:items-center">
       {/* Avatar */}
       <AvatarCircle />
       {/* Avatar details */}
@@ -26,6 +26,6 @@ export default function ProfileContainer() {
         {/* Profile btns */}
         <ProfileButtons />
       </div>
-    </div>
+    </section>
   );
 }
