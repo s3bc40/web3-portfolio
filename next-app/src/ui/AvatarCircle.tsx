@@ -48,6 +48,7 @@ export default function AvatarCircle({
         alt="Avatar"
         width={300} // @dev handle quality too
         height={300} // @dev handle quality too
+        priority
         className={`relative rounded-full p-1 ${avatarWidth} ${avatarHeight}`}
       />
     </div>

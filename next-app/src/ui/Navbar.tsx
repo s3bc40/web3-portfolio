@@ -14,7 +14,7 @@ export default function Navbar() {
     <nav className="flex w-full items-center justify-between gap-4 border-b-2 border-b-gray-500 bg-gray-800 p-4">
       {/* Icon top left */}
       <Link href="/">
-        <AvatarBrandSvg className="h-10 w-10 fill-white transition-colors hover:fill-yellow-500" />
+        <AvatarBrandSvg />
       </Link>
       {/* Connect button wallet */}
       <ConnectButton />

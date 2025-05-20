@@ -32,6 +32,20 @@ export function Heading2({
   );
 }
 
+export function Heading3({
+  children,
+  twTextColor = "text-gray-300",
+}: {
+  children: React.ReactNode;
+  twTextColor?: string;
+}) {
+  return (
+    <p className={`text-lg font-semibold lg:text-xl ${twTextColor}`}>
+      {children}
+    </p>
+  );
+}
+
 export function Body1({
   children,
   twTextColor = "text-gray-300",
@@ -40,8 +54,18 @@ export function Body1({
   twTextColor?: string;
 }) {
   return (
-    <p className={`text-lg font-medium lg:text-xl ${twTextColor}`}>
+    <p className={`text-md font-medium lg:text-lg ${twTextColor}`}>
       {children}
     </p>
   );
+}
+
+export function Body2({
+  children,
+  twTextColor = "text-gray-300",
+}: {
+  children: React.ReactNode;
+  twTextColor?: string;
+}) {
+  return <p className={`lg:text-md ${twTextColor}`}>{children}</p>;
 }
