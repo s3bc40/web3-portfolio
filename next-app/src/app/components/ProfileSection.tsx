@@ -9,7 +9,7 @@ import { Heading1, Heading3, Body1 } from "@/ui/Typography";
  */
 export default function ProfileSection() {
   return (
-    <section className="flex flex-col items-center gap-4 md:flex-row md:items-center">
+    <section className="flex min-w-xs flex-col items-center gap-4 md:flex-row md:items-center">
       {/* Avatar */}
       <AvatarCircle />
       {/* Avatar details */}

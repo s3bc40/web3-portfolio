@@ -11,7 +11,7 @@ import { FaGithub, FaSquareXTwitter, FaTelegram } from "react-icons/fa6";
 export default function Footer() {
   const { github, xTwitter, telegram } = SOCIAL_MEDIA_LINKS;
   return (
-    <footer className="bg-gray-800 py-4 text-gray-300">
+    <footer className="w-full bg-gray-800 py-4 text-gray-300">
       <div className="text-center">
         <Body2>
           &copy; {new Date().getFullYear()} s3bc40. All rights reserved.

@@ -1,16 +1,8 @@
-/**
- * Layout component for the entire application.
- * @param {React.ReactNode} children - The child components to be rendered within the layout.
- * @returns {JSX.Element} The layout component.
- */
-
 import type { Metadata } from "next";
 import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Providers } from "@/app/providers";
-import Navbar from "@/ui/Navbar";
 import { Roboto } from "next/font/google";
-import Footer from "@/ui/Footer";
 
 // Font imports
 const roboto = Roboto({
@@ -24,6 +16,11 @@ export const metadata: Metadata = {
   description: "Welcome to my portfolio website",
 };
 
+/**
+ * Layout component for the entire application.
+ * @param {React.ReactNode} children - The child components to be rendered within the layout.
+ * @returns {JSX.Element} The layout component.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,14 +30,7 @@ export default function RootLayout({
     <html lang="en" className={roboto.className}>
       <body className="bg-gray-900">
         {/* Providers for Web3 configs */}
-        <Providers>
-          {/* Navbar */}
-          <Navbar />
-          {/* Main content */}
-          <main>{children}</main>
-          {/* Footer */}
-          <Footer />
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
