@@ -1,6 +1,6 @@
 "use client";
 
-import { Body2, Heading3 } from "@/ui/Typography";
+import { Body1, Body2 } from "@/ui/Typography";
 
 type CardProps = {
   title: string;
@@ -17,7 +17,7 @@ export function Card({ title, description, icon }: CardProps) {
       {/* Icon */}
       <div>{icon}</div>
       {/* Title */}
-      <Heading3>{title}</Heading3>
+      <Body1>{title}</Body1>
       {/* Description */}
       <Body2>{description}</Body2>
     </div>

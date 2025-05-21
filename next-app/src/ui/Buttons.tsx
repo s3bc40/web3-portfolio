@@ -60,6 +60,7 @@ export function ButtonIcon({
         style={{
           pointerEvents: disabled ? "none" : "auto",
         }}
+        rel="noopener noreferrer"
       >
         {item.icon}
       </Link>

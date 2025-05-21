@@ -6,6 +6,12 @@ import {
   FaUserCheck,
 } from "react-icons/fa6";
 
+/**
+ * AboutSection component
+ * @description A component that displays a section of information about the developer.
+ * It includes cards with icons, titles, and descriptions.
+ * @returns {JSX.Element} The rendered AboutSection component.
+ */
 export default function AboutSection() {
   const aboutItems = [
     {

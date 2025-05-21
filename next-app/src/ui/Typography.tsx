@@ -20,13 +20,13 @@ export function Heading1({
 
 export function Heading2({
   children,
-  twTextColor = "text-blue-300",
+  twTextColor = "text-yellow-300",
 }: {
   children: React.ReactNode;
   twTextColor?: string;
 }) {
   return (
-    <h2 className={`text-2xl font-bold lg:text-4xl ${twTextColor}`}>
+    <h2 className={`text-4xl font-black lg:text-6xl ${twTextColor}`}>
       {children}
     </h2>
   );
@@ -34,15 +34,29 @@ export function Heading2({
 
 export function Heading3({
   children,
+  twTextColor = "text-blue-300",
+}: {
+  children: React.ReactNode;
+  twTextColor?: string;
+}) {
+  return (
+    <h3 className={`text-2xl font-bold lg:text-4xl ${twTextColor}`}>
+      {children}
+    </h3>
+  );
+}
+
+export function Heading4({
+  children,
   twTextColor = "text-gray-300",
 }: {
   children: React.ReactNode;
   twTextColor?: string;
 }) {
   return (
-    <p className={`text-lg font-semibold lg:text-xl ${twTextColor}`}>
+    <h4 className={`text-lg font-semibold lg:text-xl ${twTextColor}`}>
       {children}
-    </p>
+    </h4>
   );
 }
 

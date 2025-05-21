@@ -1,6 +1,3 @@
-/**
- * ProfileButtons.tsx
- */
 "use client";
 
 import { ButtonIcon } from "@/ui/Buttons";

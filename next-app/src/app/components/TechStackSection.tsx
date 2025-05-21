@@ -15,87 +15,83 @@ import {
   SiRust,
 } from "react-icons/si";
 import { VscVscode } from "react-icons/vsc";
+import TechStackItem from "@/app/components/TechStackItem";
+import { Heading2 } from "@/ui/Typography";
 
+/**
+ * TechStackSection component
+ * @description A component that displays a section of technology stacks with icons and labels.
+ * @returns {JSX.Element} The rendered TechStackSection component.
+ */
 export default function TechStackSection() {
-  const updatedTechStack = [
-    { name: "Python", icon: <PythonBrandSvg className="h-12 w-12" /> },
+  const twIconSize = "h-12 w-12";
+  // List of technologies I have worked with.
+  const techStackList = [
+    { label: "Python", icon: <PythonBrandSvg className={twIconSize} /> },
     {
-      name: "Vyper",
-      icon: <VyperBrandSvg className="h-12 w-12" />,
+      label: "Vyper",
+      icon: <VyperBrandSvg className={twIconSize} />,
     },
     {
-      name: "Moccasin",
-      icon: <MoccasinBrandSvg className="h-12 w-12" />,
+      label: "Moccasin",
+      icon: <MoccasinBrandSvg className={twIconSize} />,
     },
     {
-      name: "Solidity",
-      icon: <SiSolidity className="h-12 w-12 fill-gray-300" />,
+      label: "Solidity",
+      icon: <SiSolidity className={`${twIconSize} fill-gray-300`} />,
     },
     {
-      name: "Foundry",
-      icon: <FoundryBrandSvg className="h-12 w-12 fill-teal-500" />,
+      label: "Foundry",
+      icon: <FoundryBrandSvg className={`${twIconSize} fill-teal-500`} />,
     },
     {
-      name: "Typescript",
-      icon: <SiTypescript className="h-12 w-12 fill-blue-600" />,
+      label: "Typescript",
+      icon: <SiTypescript className={`${twIconSize} fill-blue-600`} />,
     },
     {
-      name: "React",
-      icon: <SiReact className="h-12 w-12 fill-blue-400" />,
+      label: "React",
+      icon: <SiReact className={`${twIconSize} fill-blue-400`} />,
     },
     {
-      name: "Next.js",
-      icon: <SiNextdotjs className="h-12 w-12" />,
+      label: "Next.js",
+      icon: <SiNextdotjs className={twIconSize} />,
     },
     {
-      name: "Tailwind CSS",
-      icon: <SiTailwindcss className="h-12 w-12 fill-blue-400" />,
+      label: "Tailwind CSS",
+      icon: <SiTailwindcss className={`${twIconSize} fill-blue-400`} />,
     },
     {
-      name: "Zsh",
-      icon: <SiZsh className="h-12 w-12 fill-gray-300" />,
+      label: "Zsh",
+      icon: <SiZsh className={`${twIconSize} fill-gray-300`} />,
     },
     {
-      name: "Linux",
-      icon: <SiLinux className="h-12 w-12 fill-yellow-500" />,
+      label: "Linux",
+      icon: <SiLinux className={`${twIconSize} fill-yellow-500`} />,
     },
     {
-      name: "Git",
-      icon: <SiGit className="h-12 w-12 fill-orange-500" />,
+      label: "Git",
+      icon: <SiGit className={`${twIconSize} fill-orange-500`} />,
     },
     {
-      name: "GitHub",
-      icon: <SiGithub className="h-12 w-12" />,
+      label: "GitHub",
+      icon: <SiGithub className={twIconSize} />,
     },
     {
-      name: "Rust",
-      icon: <SiRust className="h-12 w-12" />,
+      label: "Rust",
+      icon: <SiRust className={twIconSize} />,
     },
     {
-      name: "VsCode",
-      icon: <VscVscode className="h-12 w-12 fill-blue-600" />,
+      label: "VsCode",
+      icon: <VscVscode className={`${twIconSize} fill-blue-600`} />,
     },
   ];
 
   return (
-    <section>
-      <h2 className="mb-8 text-center text-4xl font-black text-yellow-400 md:text-6xl">
-        Tech Stack
-      </h2>
+    <section className="flex flex-col gap-6 text-center">
+      <Heading2>Tech Stack</Heading2>
       <div className="grid max-w-5xl grid-cols-3 gap-6 md:grid-cols-5">
-        {updatedTechStack.map((tech) => (
-          <div
-            key={tech.name}
-            className="group relative flex cursor-pointer flex-col items-center transition-all duration-200 hover:scale-110"
-          >
-            <div className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-blue-600 to-teal-600 opacity-0 blur transition-opacity duration-200 group-hover:opacity-100"></div>
-            <span className="relative flex h-20 w-20 items-center justify-center rounded-lg bg-gray-800 p-4 shadow-inner">
-              {tech.icon}
-            </span>
-            <span className="relative mt-2 text-lg font-medium text-gray-300">
-              {tech.name}
-            </span>
-          </div>
+        {techStackList.map(({ label, icon }) => (
+          <TechStackItem label={label} icon={icon} key={label} />
         ))}
       </div>
     </section>
