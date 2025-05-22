@@ -112,7 +112,7 @@ const certificationsData = [
 
 export default function CourseCuSection() {
   return (
-    <section className="flex flex-col gap-6 text-center">
+    <section className="flex flex-col gap-6 text-center" data-testid="course">
       {/* Main title section */}
       <Heading2>Course completion</Heading2>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

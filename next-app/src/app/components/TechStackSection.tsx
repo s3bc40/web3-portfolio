@@ -87,7 +87,10 @@ export default function TechStackSection() {
   ];
 
   return (
-    <section className="flex flex-col gap-6 text-center">
+    <section
+      className="flex flex-col gap-6 text-center"
+      data-testid="tech-stack"
+    >
       <Heading2>Tech Stack</Heading2>
       <div className="grid max-w-5xl grid-cols-3 gap-6 md:grid-cols-5">
         {techStackList.map(({ label, icon }) => (

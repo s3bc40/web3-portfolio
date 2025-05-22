@@ -29,6 +29,7 @@ type ButtonProps = {
   disabledText?: string;
   twWidth?: string;
   twHeight?: string;
+  target?: string;
 };
 
 /**
@@ -43,6 +44,7 @@ export function ButtonIcon({
   disabledText = "Connect your wallet",
   twWidth = "w-16",
   twHeight = "h-16",
+  target = "_blank",
 }: ButtonProps) {
   return (
     <div
@@ -53,7 +55,7 @@ export function ButtonIcon({
       {/* Button link */}
       <Link
         href={disabled ? "" : item.link}
-        target="_blank"
+        target={target}
         className={`flex ${twWidth} ${twHeight} items-center justify-center rounded-full transition duration-300 ease-in-out hover:scale-110 active:scale-110 ${
           disabled ? "cursor-not-allowed bg-gray-500" : "bg-teal-500"
         }`}

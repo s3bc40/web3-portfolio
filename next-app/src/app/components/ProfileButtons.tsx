@@ -40,7 +40,7 @@ export default function ProfileButtons() {
     },
     {
       icon: <FaHeartCircleBolt className="h-8 w-8 fill-white" />,
-      link: "/",
+      link: "/donate",
       name: "Donate",
     },
   ];
@@ -52,6 +52,7 @@ export default function ProfileButtons() {
           key={item.name}
           item={item}
           disabled={item.name == "Donate" ? !isConnected : false}
+          target={item.name == "Donate" ? "_self" : "_blank"}
         />
       ))}
     </div>
