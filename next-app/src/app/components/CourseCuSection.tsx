@@ -1,7 +1,5 @@
 import CourseCU from "@/app/components/CourseCU";
 import { Heading2 } from "@/ui/Typography";
-import Image from "next/image";
-import Link from "next/link";
 
 const certificationsData = [
   {

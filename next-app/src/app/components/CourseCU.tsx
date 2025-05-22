@@ -29,13 +29,13 @@ export default function CourseCU({
   const [isActive, setIsActive] = useState(false);
   const divRef = useRef<HTMLDivElement>(null);
 
-  function handleTouch(e: React.TouchEvent) {
+  function handleTouch() {
     setIsActive((prev) => !prev);
   }
 
   useEffect(() => {
-    function handleTouchOutside(event: TouchEvent) {
-      if (divRef.current && !divRef.current.contains(event.target as Node)) {
+    function handleTouchOutside(e: TouchEvent) {
+      if (divRef.current && !divRef.current.contains(e.target as Node)) {
         setIsActive(false);
       }
     }
