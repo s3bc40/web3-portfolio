@@ -1,20 +1,20 @@
 from moccasin.boa_tools import VyperContract
-from src import portfolio_fund_me
+from src import fund_me
 
 
 def deploy() -> VyperContract:
     """
-    Deploys the PortfolioFundMe contract.
+    Deploys the FundMe contract.
     Returns:
-        VyperContract: The deployed PortfolioFundMe contract instance.
+        VyperContract: The deployed FundMe contract instance.
     """
-    return portfolio_fund_me.deploy()
+    return fund_me.deploy()
 
 
 def moccasin_main() -> VyperContract:
     """
-    Main entry point for deploying the PortfolioFundMe contract.
+    Main entry point for deploying the FundMe contract.
     Returns:
-        VyperContract: The deployed PortfolioFundMe contract instance.
+        VyperContract: The deployed FundMe contract instance.
     """
     return deploy()
