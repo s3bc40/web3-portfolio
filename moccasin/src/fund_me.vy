@@ -71,7 +71,7 @@ event WithdrawZK:
 #                    CONSTANTS & IMMUTABLES                    #
 ################################################################
 # @dev The minimum funding amount in wei (0.0001 ETH).
-MINIMUM_FUNDING_AMOUNT: public(constant(uint256)) = 1 * 10**14
+MINIMUM_FUNDING_AMOUNT_WEI: constant(uint256) = 1 * 10**14
 
 # @dev The address of the ZK token contract, immutable to prevent changes after deployment.
 ZK_TOKEN_ADDRESS: immutable(address)
@@ -136,7 +136,7 @@ def fund_eth():
         The function is marked as `payable` to allow ETH transfers.
     """
     assert msg.sender != empty(address), ZERO_ADDRESS_ERROR
-    assert msg.value > MINIMUM_FUNDING_AMOUNT, INSUFFICIENT_AMOUNT_ERROR
+    assert msg.value > MINIMUM_FUNDING_AMOUNT_WEI, INSUFFICIENT_AMOUNT_ERROR
     amount: uint256 = msg.value
 
     # Increment the total fund amount if this is the first funding from the address.
@@ -160,7 +160,7 @@ def fund_zk_token(_amount: uint256):
         The sender must have approved the contract to spend the specified amount of ZK tokens.
     """
     assert msg.sender != empty(address), ZERO_ADDRESS_ERROR
-    assert _amount > MINIMUM_FUNDING_AMOUNT, INSUFFICIENT_AMOUNT_ERROR
+    assert _amount > MINIMUM_FUNDING_AMOUNT_WEI, INSUFFICIENT_AMOUNT_ERROR
 
     # Increment the total fund amount if this is the first funding from the address.
     if self._is_funder(msg.sender) == False:
@@ -280,4 +280,13 @@ def get_minimal_funding_amount() -> uint256:
     @dev Returns the minimum funding amount in wei.
     @return The minimum funding amount in wei.
     """
-    return MINIMUM_FUNDING_AMOUNT
+    return MINIMUM_FUNDING_AMOUNT_WEI
+
+@view
+@external
+def get_zk_token_address() -> address:
+    """
+    @dev Returns the address of the ZK token contract.
+    @return The address of the ZK token contract.
+    """
+    return ZK_TOKEN_ADDRESS

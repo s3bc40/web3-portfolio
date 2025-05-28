@@ -4,6 +4,10 @@ out = "out"
 dot_env = ".env"
 dependencies = ["snekmate"]
 
+[networks.contracts.zktoken]
+abi = "abis/zksync.json"
+deployer_script = "script/mocks/deploy_mock_zk_token.py"
+
 [networks.pyevm]
 is_zksync = false
 
@@ -12,10 +16,6 @@ url = "http://127.0.0.1:8545"
 prompt_live = false
 save_to_db = false
 chain_id = 31337
-
-[networks.sepolia]
-url = "https://ethereum-sepolia-rpc.publicnode.com"
-chain_id = 11155111
 
 [networks.zksync-sepolia]
 url = "https://sepolia.era.zksync.dev"

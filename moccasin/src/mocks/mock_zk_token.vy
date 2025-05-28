@@ -1,14 +1,15 @@
 # pragma version 0.4.1
 """
 @license MIT
-@title Mock ERC20 Token
-@notice A mock implementation of the ERC20 token interface for testing purposes.
-@dev This contract implements snekmate's ERC20 token interface with ownable functionality.
+@title Mock ZKsync Token
+@notice A mock implementation of the ZKsync token interface for testing purposes.
+@dev This contract implements snekmate's ZKsync token interface with ownable functionality.
 @author s3bc40
 """
 from snekmate.auth import ownable
 from snekmate.tokens import erc20
 
+initializes: ownable
 initializes: erc20[ownable := ownable]
 exports: erc20.__interface__
 
@@ -20,5 +21,6 @@ def __init__(
     _decimals: uint8,
     _initial_supply: uint256,
 ):
+    ownable.__init__()
     erc20.__init__(_name, _symbol, _decimals, "MOCK", "MOCK")
     erc20._mint(msg.sender, _initial_supply)

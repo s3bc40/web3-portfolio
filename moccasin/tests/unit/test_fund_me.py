@@ -1,18 +1,8 @@
 import pytest
-from titanoboa.exceptions import VyperException
 from moccasin.boa_tools import VyperContract
 from utils.constants import (
     MINIMUM_FUNDING_AMOUNT_WEI,
-    ZK_INITIAL_SUPPLY,
-    ZK_NAME,
-    ZK_SYMBOL,
-    ZK_DECIMALS,
 )
-
-# Assuming MINIMUM_FUNDING_AMOUNT is imported from your constants,
-# it's good practice to rename it for clarity if it represents wei value.
-# For example: MINIMUM_FUNDING_AMOUNT_WEI = 100000000000000 # 0.0001 ETH in wei
-# WIP
 
 
 def test_fund_me_deployed(fund_me: VyperContract, owner: str):
@@ -28,6 +18,8 @@ def test_fund_me_deployed(fund_me: VyperContract, owner: str):
     assert fund_me.get_minimal_funding_amount() == MINIMUM_FUNDING_AMOUNT_WEI, (
         "Minimum funding amount should match"
     )
+    breakpoint()
+    assert fund_me.get_zk_token_address() is not None, "ZK token address should be set"
 
 
 def test_fallback_rejects_direct_eth_transfer(
