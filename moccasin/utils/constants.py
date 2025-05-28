@@ -1,0 +1,8 @@
+################################################################
+#                           MOCK ZK                            #
+################################################################
+# def __init__(_name: String[64], _symbol: String[32], _decimals: uint8, _initial_supply: uint256):
+ZK_NAME = "Moccasin ZK"
+ZK_SYMBOL = "MOCZK"
+ZK_DECIMALS = 18
+ZK_INITIAL_SUPPLY = 10_000 * 10**18  # 10,000 tokens with 18 decimals
