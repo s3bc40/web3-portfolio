@@ -22,22 +22,22 @@ from ethereum.ercs import IERC20
 #                            ERRORS                            #
 ################################################################
 # @dev Zero address error message.
-ZERO_ADDRESS_ERROR: constant(String[64]) = "fund_me: zero address not allowed"
+ZERO_ADDRESS_ERROR: public(constant(String[64])) = "fund_me: zero address not allowed"
 
 # @dev Insufficient amount error message.
-INSUFFICIENT_AMOUNT_ERROR: constant(
+INSUFFICIENT_AMOUNT_ERROR: public(constant(
     String[64]
-) = "fund_me: insufficient amount sent"
+)) = "fund_me: insufficient amount sent"
 
 # @dev Funding transfer failed error message.
-FUNDING_TRANSFER_FAILED_ERROR: constant(
+FUNDING_TRANSFER_FAILED_ERROR: public(constant(
     String[64]
-) = "fund_me: funding transfer failed"
+)) = "fund_me: funding transfer failed"
 
 # @dev Direct ETH transfer error message.
-DIRECT_TRANSFER_ERROR: constant(
+DIRECT_TRANSFER_ERROR: public(constant(
     String[64]
-) = "fund_me: direct transfers not allowed"
+)) = "fund_me: direct transfers not allowed"
 
 
 ################################################################

@@ -1,10 +1,16 @@
+import boa
 import pytest
+
+from eth.exceptions import Revert
 from moccasin.boa_tools import VyperContract
 from utils.constants import (
     MINIMUM_FUNDING_AMOUNT_WEI,
 )
 
 
+################################################################
+#                         FUNDME INIT                          #
+################################################################
 def test_fund_me_deployed(fund_me: VyperContract, owner: str):
     """
     Test that the contract is deployed and basic properties are set.
@@ -18,19 +24,24 @@ def test_fund_me_deployed(fund_me: VyperContract, owner: str):
     assert fund_me.get_minimal_funding_amount() == MINIMUM_FUNDING_AMOUNT_WEI, (
         "Minimum funding amount should match"
     )
-    breakpoint()
     assert fund_me.get_zk_token_address() is not None, "ZK token address should be set"
 
 
-def test_fallback_rejects_direct_eth_transfer(
-    fund_me: VyperContract, accounts: list[str]
-):
+def test_fallback_rejects_direct_eth_transfer(fund_me, funders):
     """
     Test that direct ETH transfers to the contract are rejected by the fallback.
     """
-    with pytest.raises(VyperException) as excinfo:
-        fund_me.transfer(accounts[0], 100)  # Attempt a direct transfer
-    assert "fund_me: direct transfers not allowed" in str(excinfo.value)
+    # Use pytest.raises to assert that a Revert exception is raised
+    with pytest.raises(Revert) as excinfo:
+        boa.env.raw_call(
+            fund_me.address,
+            data=b"",  # Empty calldata for direct ETH transfer
+            value=1 * 10**18,  # Attempt to send 1 ETH
+            sender=funders[0],
+        )
+
+    expected_revert_message_part = fund_me.DIRECT_TRANSFER_ERROR()
+    assert expected_revert_message_part in str(excinfo.value.args[0])
 
 
 def test_fund_eth_success(fund_me: VyperContract, funder_account: str):

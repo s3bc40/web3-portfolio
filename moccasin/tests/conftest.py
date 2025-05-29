@@ -3,16 +3,6 @@ import pytest
 
 from moccasin.boa_tools import VyperContract
 from script import deploy_fund_me
-# from script.mocks import deploy_mock_zk_token
-
-
-# @pytest.fixture(scope="session")
-# def mock_zktoken() -> VyperContract:
-#     """
-#     Fixture to provide a MockERC20 contract instance for testing.
-#     Deploys the MockERC20 contract.
-#     """
-#     return deploy_mock_zk_token.deploy()
 
 
 @pytest.fixture(scope="session")
@@ -32,3 +22,15 @@ def fund_me(owner) -> VyperContract:
     """
     with boa.env.prank(owner):
         return deploy_fund_me.deploy()
+
+
+@pytest.fixture(scope="session")
+def funders() -> list[str]:
+    """
+    Fixture to provide a list of funders' addresses for testing.
+    Returns a list of addresses that will be used as funders.
+    """
+    funders = [boa.env.generate_address(f"funder_{i}") for i in range(5)]
+    for funder in funders:
+        boa.env.set_balance(funder, 1000 * 10**18)
+    return funders
