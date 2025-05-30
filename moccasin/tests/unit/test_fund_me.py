@@ -14,10 +14,6 @@ from utils.constants import (
     FUNDER_INITIAL_BALANCE_WEI,
 )
 
-################################################################
-#                           HELPERS                            #
-################################################################
-
 
 ################################################################
 #                         FUNDME INIT                          #
@@ -56,10 +52,8 @@ def test_fallback_rejects_direct_eth_transfer(fund_me, funders):
 
 
 ################################################################
-#                           FUNDING                            #
+#                         FUNDING ETH                          #
 ################################################################
-
-
 def test_fund_eth_zero_address(fund_me):
     """
     Test ETH funding from a zero address.
@@ -101,6 +95,11 @@ def test_fund_eth_success_fuzz(fund_me, funders, amount: int, index: int):
     funder_account = funders[index]
     initial_contract_eth_balance = fund_me.balance_of_eth()
     initial_funder_eth_balance = fund_me.get_funder_eth_amount(funder_account)
+    initial_funder_count = fund_me.funder_count()
+    is_new_funder = (
+        fund_me.get_funder_eth_amount(funder_account) == 0
+        and fund_me.get_funder_zk_token_amount(funder_account) == 0
+    )
 
     # Fund ETH
     with boa.env.prank(funder_account):
@@ -111,331 +110,386 @@ def test_fund_eth_success_fuzz(fund_me, funders, amount: int, index: int):
 
     # Assert contract balance increased
     assert fund_me.balance_of_eth() == initial_contract_eth_balance + amount
-    # Assert funder's recorded balance increased and matches the contract balance
-    assert fund_me.balance_of_eth() == boa.env.get_balance(fund_me.address)
     # Assert funder's recorded balance increased
     assert (
         fund_me.get_funder_eth_amount(funder_account)
         == initial_funder_eth_balance + amount
     )
     # Assert funder count increased if new funder
-    assert fund_me.funder_count() == 1
+    if is_new_funder:
+        assert fund_me.funder_count() == initial_funder_count + 1
+    else:
+        assert fund_me.funder_count() == initial_funder_count
+
     # Assert event emission
     assert len(logs) == 1, "Should emit one FundedEth event"
     assert log_funder == funder_account, "Funder address should match"
     assert log_amount == amount, "Funded amount should match"
 
-
-# def test_fund_zk_token_success(
-#     fund_me: VyperContract, mock_erc20: VyperContract, funder_account: str, owner: str
-# ):
-#     """
-#     Test successful ZK token funding.
-#     """
-#     amount = 100 * 10**ZK_DECIMALS  # 100 ZK tokens
-#     # Mint some tokens to the funder's account for testing
-#     mock_erc20.mint(
-#         funder_account, amount * 2, sender=owner
-#     )  # Mint more than needed for allowance and transfer
-#     assert mock_erc20.balanceOf(funder_account) >= amount, (
-#         "Funder should have enough ZK tokens"
-#     )
-
-#     # Approve the fund_me contract to spend ZK tokens
-#     mock_erc20.approve(fund_me.address, amount, sender=funder_account)
-#     assert mock_erc20.allowance(funder_account, fund_me.address) == amount, (
-#         "Allowance should be set"
-#     )
-
-#     initial_contract_zk_balance = fund_me.balance_of_zk_token()
-#     initial_funder_zk_balance = fund_me.get_funder_zk_token_amount(funder_account)
-#     initial_funder_erc20_balance = mock_erc20.balanceOf(funder_account)
-
-#     # Fund ZK tokens
-#     fund_me.fund_zk_token(amount, sender=funder_account)
-
-#     # Assert contract ZK balance increased
-#     assert fund_me.balance_of_zk_token() == initial_contract_zk_balance + amount
-#     # Assert funder's recorded ZK balance increased
-#     assert (
-#         fund_me.get_funder_zk_token_amount(funder_account)
-#         == initial_funder_zk_balance + amount
-#     )
-#     # Assert funder's ERC20 balance decreased
-#     assert mock_erc20.balanceOf(funder_account) == initial_funder_erc20_balance - amount
-#     # Assert funder count increased if new funder
-#     assert fund_me.funder_count() == 1
-
-#     # Test event emission
-#     events = fund_me.get_events("FundedZKToken")
-#     assert len(events) == 1
-#     assert events[0].funder == funder_account
-#     assert events[0].amount == amount
-
-#     # Fund ZK again from the same funder
-#     mock_erc20.approve(
-#         fund_me.address, amount, sender=funder_account
-#     )  # Approve again for the second transfer
-#     fund_me.fund_zk_token(amount, sender=funder_account)
-#     assert fund_me.balance_of_zk_token() == initial_contract_zk_balance + (2 * amount)
-#     assert fund_me.get_funder_zk_token_amount(
-#         funder_account
-#     ) == initial_funder_zk_balance + (2 * amount)
-#     assert fund_me.funder_count() == 1  # Still 1 funder
+    # Assert contract's actual ETH balance matches recorded balance
+    assert fund_me.balance_of_eth() == boa.env.get_balance(fund_me.address)
 
 
-# def test_fund_zk_token_insufficient_amount(
-#     fund_me: VyperContract, mock_erc20: VyperContract, funder_account: str
-# ):
-#     """
-#     Test ZK token funding with insufficient amount (less than MINIMUM_FUNDING_AMOUNT).
-#     """
-#     amount = MINIMUM_FUNDING_AMOUNT_WEI - 1  # Use the ETH minimum for ZK too
-#     # Mint some tokens to the funder's account for testing
-#     mock_erc20.mint(funder_account, amount * 2, sender=mock_erc20.owner())
-#     mock_erc20.approve(fund_me.address, amount, sender=funder_account)
-
-#     with pytest.raises(VyperException) as excinfo:
-#         fund_me.fund_zk_token(amount, sender=funder_account)
-#     assert "fund_me: insufficient amount sent" in str(excinfo.value)
+################################################################
+#                          FUNDING ZK                          #
+################################################################
+def test_fund_zk_token_zero_address(fund_me):
+    """
+    Test ZK token funding from a zero address.
+    """
+    with boa.reverts(fund_me.ZERO_ADDRESS_ERROR()):
+        fund_me.fund_zk_token(1, sender=ZERO_ADDRESS)
 
 
-# def test_fund_zk_token_insufficient_allowance(
-#     fund_me: VyperContract, mock_erc20: VyperContract, funder_account: str, owner: str
-# ):
-#     """
-#     Test ZK token funding when contract has insufficient allowance.
-#     """
-#     amount = 100 * 10**ZK_DECIMALS
-#     # Mint some tokens to the funder's account for testing
-#     mock_erc20.mint(funder_account, amount * 2, sender=owner)
-#     # Approve less than the required amount
-#     mock_erc20.approve(fund_me.address, amount - 1, sender=funder_account)
-
-#     with pytest.raises(VyperException) as excinfo:
-#         fund_me.fund_zk_token(amount, sender=funder_account)
-#     assert "ERC20: insufficient allowance" in str(excinfo.value)
-
-
-# def test_withdraw_eth_success(
-#     fund_me: VyperContract, owner: str, funder_account: str, accounts: list[str]
-# ):
-#     """
-#     Test successful ETH withdrawal by the owner.
-#     """
-#     initial_fund_amount = MINIMUM_FUNDING_AMOUNT_WEI * 5
-#     fund_me.fund_eth(sender=funder_account, value=initial_fund_amount)
-#     assert fund_me.balance_of_eth() == initial_fund_amount
-
-#     withdraw_amount = MINIMUM_FUNDING_AMOUNT_WEI * 2
-#     initial_owner_eth_balance = accounts.get_balance(
-#         owner
-#     )  # Get owner's actual ETH balance
-
-#     fund_me.withdraw_eth(withdraw_amount, sender=owner)
-
-#     # Assert contract balance decreased
-#     assert fund_me.balance_of_eth() == initial_fund_amount - withdraw_amount
-#     # Assert owner's ETH balance increased (approximately, accounting for gas)
-#     assert (
-#         accounts.get_balance(owner) > initial_owner_eth_balance
-#     )  # Check if balance increased
-
-#     # Test event emission
-#     events = fund_me.get_events("WithdrawEth")
-#     assert len(events) == 1
-#     assert events[0].to == owner
-#     assert events[0].amount == withdraw_amount
+@given(
+    index=st.integers(min_value=0, max_value=FUNDER_COUNT - 1),
+    amount=st_boa(
+        "uint256",
+        min_value=0,
+        max_value=MINIMUM_FUNDING_AMOUNT_WEI - 1,
+    ),
+)
+def test_fund_zk_token_insufficient_amount(fund_me, funders, amount: int, index: int):
+    """
+    Test ZK token funding with insufficient amount.
+    """
+    funder_account = funders[index]
+    with boa.reverts(fund_me.INSUFFICIENT_AMOUNT_ERROR()):
+        fund_me.fund_zk_token(amount, sender=funder_account)
 
 
-# def test_withdraw_eth_not_owner(fund_me: VyperContract, funder_account: str):
-#     """
-#     Test ETH withdrawal by a non-owner.
-#     """
-#     fund_me.fund_eth(sender=funder_account, value=MINIMUM_FUNDING_AMOUNT_WEI * 5)
-#     with pytest.raises(VyperException) as excinfo:
-#         fund_me.withdraw_eth(MINIMUM_FUNDING_AMOUNT_WEI, sender=funder_account)
-#     assert "Only the owner can call this function." in str(
-#         excinfo.value
-#     )  # From ownable module
+@given(
+    index=st.integers(min_value=0, max_value=FUNDER_COUNT - 1),
+    amount=st_boa(
+        "uint256",
+        min_value=MINIMUM_FUNDING_AMOUNT_WEI,
+        max_value=FUNDER_INITIAL_BALANCE_WEI,
+    ),
+)
+def test_fund_zk_token_success_fuzz(
+    fund_me, mock_zktoken, funders, amount: int, index: int
+):
+    """
+    Test successful ZK token funding.
+    """
+    funder_account = funders[index]
+    initial_contract_zk_balance = fund_me.balance_of_zk_token()
+    initial_funder_zk_balance = fund_me.get_funder_zk_token_amount(funder_account)
+    initial_funder_count = fund_me.funder_count()
+    is_new_funder = (
+        fund_me.get_funder_eth_amount(funder_account) == 0
+        and fund_me.get_funder_zk_token_amount(funder_account) == 0
+    )
+
+    # Approve ZK tokens for the contract
+    with boa.env.prank(funder_account):
+        mock_zktoken.approve(fund_me.address, amount)
+
+    # Fund ZK tokens
+    with boa.env.prank(funder_account):
+        fund_me.fund_zk_token(amount)
+        logs = fund_me.get_logs()
+        log_funder = logs[2].funder
+        log_amount = logs[2].amount
+
+    # Assert contract ZK token balance increased
+    assert fund_me.balance_of_zk_token() == initial_contract_zk_balance + amount
+    # Assert funder's recorded ZK token balance increased
+    assert (
+        fund_me.get_funder_zk_token_amount(funder_account)
+        == initial_funder_zk_balance + amount
+    )
+    # Assert funder count increased if new funder
+    if is_new_funder:
+        assert fund_me.funder_count() == initial_funder_count + 1
+    else:
+        assert fund_me.funder_count() == initial_funder_count
+
+    # Assert event emission
+    assert len(logs) > 0, "Should emit one FundedZKToken event"
+    assert log_funder == funder_account, "Funder address should match"
+    assert log_amount == amount, "Funded amount should match"
+
+    # Assert contract's actual ZK token balance matches recorded balance
+    assert mock_zktoken.balanceOf(fund_me.address) == fund_me.balance_of_zk_token()
 
 
-# def test_withdraw_eth_exceeds_balance(fund_me: VyperContract, owner: str):
-#     """
-#     Test ETH withdrawal exceeding contract balance.
-#     """
-#     fund_me.fund_eth(
-#         sender=owner, value=MINIMUM_FUNDING_AMOUNT_WEI * 2
-#     )  # Fund some ETH
-#     with pytest.raises(VyperException) as excinfo:
-#         fund_me.withdraw_eth(fund_me.balance_of_eth() + 1, sender=owner)
-#     assert "fund_me: amount exceeds balance" in str(excinfo.value)
+################################################################
+#                         FUNDER COUNT                         #
+################################################################
+def test_fund_zk_only_and_check_funder_count(fund_me, mock_zktoken, funders):
+    """
+    Test funding with ZK tokens only and verify funder count.
+    This specifically targets the case where a funder only contributes ZK tokens.
+    """
+    funder_account = funders[0]
+    zk_amount = 2 * MINIMUM_FUNDING_AMOUNT_WEI
+
+    initial_funder_count = fund_me.funder_count()
+    assert fund_me.get_funder_eth_amount(funder_account) == 0
+    assert fund_me.get_funder_zk_token_amount(funder_account) == 0
+
+    # Approve ZK tokens and fund
+    with boa.env.prank(funder_account):
+        mock_zktoken.approve(fund_me.address, zk_amount)
+        fund_me.fund_zk_token(zk_amount)
+
+    assert fund_me.get_funder_zk_token_amount(funder_account) == zk_amount
+    assert fund_me.funder_count() == initial_funder_count + 1
 
 
-# def test_withdraw_eth_zero_amount(fund_me: VyperContract, owner: str):
-#     """
-#     Test ETH withdrawal with zero amount.
-#     """
-#     fund_me.fund_eth(
-#         sender=owner, value=MINIMUM_FUNDING_AMOUNT_WEI * 2
-#     )  # Fund some ETH
-#     with pytest.raises(VyperException) as excinfo:
-#         fund_me.withdraw_eth(0, sender=owner)
-#     assert "fund_me: insufficient amount sent" in str(excinfo.value)
+def test_fund_both_eth_and_zk(fund_me, mock_zktoken, funders):
+    """
+    Test a single funder funding with both ETH and ZK tokens.
+    """
+    funder_account = funders[0]
+    eth_amount = 2 * MINIMUM_FUNDING_AMOUNT_WEI
+    zk_amount = 3 * MINIMUM_FUNDING_AMOUNT_WEI
+
+    # Fund ETH
+    with boa.env.prank(funder_account):
+        fund_me.fund_eth(value=eth_amount)
+
+    # Approve ZK tokens and fund
+    with boa.env.prank(funder_account):
+        mock_zktoken.approve(fund_me.address, zk_amount)
+        fund_me.fund_zk_token(zk_amount)
+
+    assert fund_me.get_funder_eth_amount(funder_account) == eth_amount
+    assert fund_me.get_funder_zk_token_amount(funder_account) == zk_amount
+    assert fund_me.balance_of_eth() == eth_amount
+    assert fund_me.balance_of_zk_token() == zk_amount
+    assert fund_me.funder_count() == 1  # Still one unique funder
 
 
-# def test_withdraw_zk_token_success(
-#     fund_me: VyperContract, mock_erc20: VyperContract, funder_account: str, owner: str
-# ):
-#     """
-#     Test successful ZK token withdrawal by the owner.
-#     """
-#     initial_fund_amount = 100 * 10**ZK_DECIMALS
-#     mock_erc20.mint(funder_account, initial_fund_amount * 2, sender=owner)
-#     mock_erc20.approve(fund_me.address, initial_fund_amount, sender=funder_account)
-#     fund_me.fund_zk_token(initial_fund_amount, sender=funder_account)
-#     assert fund_me.balance_of_zk_token() == initial_fund_amount
-
-#     withdraw_amount = 50 * 10**ZK_DECIMALS
-#     initial_owner_zk_balance = mock_erc20.balanceOf(owner)
-
-#     fund_me.withdraw_zk_token(withdraw_amount, sender=owner)
-
-#     # Assert contract ZK balance decreased
-#     assert fund_me.balance_of_zk_token() == initial_fund_amount - withdraw_amount
-#     # Assert owner's ZK balance increased
-#     assert mock_erc20.balanceOf(owner) == initial_owner_zk_balance + withdraw_amount
-
-#     # Test event emission
-#     events = fund_me.get_events("WithdrawZK")
-#     assert len(events) == 1
-#     assert events[0].to == owner
-#     assert events[0].amount == withdraw_amount
+################################################################
+#                         WITHDRAW ETH                         #
+################################################################
+def test_withdraw_eth_not_owner(fund_me, funders):
+    """
+    Test ETH withdrawal by a non-owner.
+    """
+    with boa.reverts("ownable: caller is not the owner"):
+        fund_me.withdraw_eth(ONE_ETH_IN_WEI, sender=funders[0])
 
 
-# def test_withdraw_zk_token_not_owner(
-#     fund_me: VyperContract, mock_erc20: VyperContract, funder_account: str, owner: str
-# ):
-#     """
-#     Test ZK token withdrawal by a non-owner.
-#     """
-#     initial_fund_amount = 100 * 10**ZK_DECIMALS
-#     mock_erc20.mint(funder_account, initial_fund_amount * 2, sender=owner)
-#     mock_erc20.approve(fund_me.address, initial_fund_amount, sender=funder_account)
-#     fund_me.fund_zk_token(initial_fund_amount, sender=funder_account)
-
-#     with pytest.raises(VyperException) as excinfo:
-#         fund_me.withdraw_zk_token(50 * 10**ZK_DECIMALS, sender=funder_account)
-#     assert "Only the owner can call this function." in str(excinfo.value)
+def test_withdraw_eth_insufficient_contract_balance(fund_me, owner):
+    """
+    Test ETH withdrawal when contract has insufficient balance.
+    """
+    with boa.reverts(fund_me.WITHDRAWAL_AMOUNT_EXCEEDS_BALANCE_ERROR()):
+        fund_me.withdraw_eth(MINIMUM_FUNDING_AMOUNT_WEI, sender=owner)
 
 
-# def test_withdraw_zk_token_exceeds_balance(
-#     fund_me: VyperContract, owner: str, mock_erc20: VyperContract
-# ):
-#     """
-#     Test ZK token withdrawal exceeding contract balance.
-#     """
-#     initial_fund_amount = 100 * 10**ZK_DECIMALS
-#     mock_erc20.mint(owner, initial_fund_amount * 2, sender=owner)  # Mint to owner
-#     mock_erc20.approve(fund_me.address, initial_fund_amount, sender=owner)
-#     fund_me.fund_zk_token(initial_fund_amount, sender=owner)
-
-#     with pytest.raises(VyperException) as excinfo:
-#         fund_me.withdraw_zk_token(fund_me.balance_of_zk_token() + 1, sender=owner)
-#     assert "fund_me: amount exceeds balance" in str(excinfo.value)
+def test_withdraw_eth_zero_amount(fund_me, funders):
+    """
+    Test ETH withdrawal with zero amount.
+    """
+    # Fund the contract first to have balance
+    fund_me.fund_eth(sender=funders[0], value=MINIMUM_FUNDING_AMOUNT_WEI)
+    with boa.reverts(fund_me.INSUFFICIENT_AMOUNT_ERROR()):
+        fund_me.withdraw_eth(0, sender=fund_me.owner())
 
 
-# def test_withdraw_zk_token_zero_amount(
-#     fund_me: VyperContract, owner: str, mock_erc20: VyperContract
-# ):
-#     """
-#     Test ZK token withdrawal with zero amount.
-#     """
-#     initial_fund_amount = 100 * 10**ZK_DECIMALS
-#     mock_erc20.mint(owner, initial_fund_amount * 2, sender=owner)
-#     mock_erc20.approve(fund_me.address, initial_fund_amount, sender=owner)
-#     fund_me.fund_zk_token(initial_fund_amount, sender=owner)
+@given(
+    amount=st_boa(
+        "uint256",
+        min_value=MINIMUM_FUNDING_AMOUNT_WEI,
+        max_value=FUNDER_INITIAL_BALANCE_WEI,
+    ),
+    index=st.integers(min_value=0, max_value=FUNDER_COUNT - 1),
+)
+def test_withdraw_eth_success_fuzz(fund_me, funders, amount: int, index: int):
+    """
+    Test successful ETH withdrawal.
+    """
+    funder_account = funders[index]
+    owner = fund_me.owner()
 
-#     with pytest.raises(VyperException) as excinfo:
-#         fund_me.withdraw_zk_token(0, sender=owner)
-#     assert "fund_me: insufficient amount sent" in str(excinfo.value)
+    # Fund the contract first
+    fund_me.fund_eth(sender=funder_account, value=amount)
 
+    initial_owner_balance = boa.env.get_balance(owner)
+    contract_eth_balance_before_withdraw = fund_me.balance_of_eth()
 
-# def test_multiple_funders(
-#     fund_me: VyperContract,
-#     mock_erc20: VyperContract,
-#     funder_account: str,
-#     another_funder_account: str,
-#     owner: str,
-# ):
-#     """
-#     Test funding from multiple accounts and verify funder count.
-#     """
-#     eth_amount_1 = MINIMUM_FUNDING_AMOUNT_WEI * 2
-#     zk_amount_1 = 50 * 10**ZK_DECIMALS
+    # Withdraw ETH
+    with boa.env.prank(owner):
+        fund_me.withdraw_eth(amount)
+        logs = fund_me.get_logs()
+        log_to = logs[0].to
+        log_amount = logs[0].amount
 
-#     eth_amount_2 = MINIMUM_FUNDING_AMOUNT_WEI * 3
-#     zk_amount_2 = 75 * 10**ZK_DECIMALS
-
-#     # Funder 1 funds ETH
-#     fund_me.fund_eth(sender=funder_account, value=eth_amount_1)
-#     assert fund_me.funder_count() == 1
-#     assert fund_me.get_funder_eth_amount(funder_account) == eth_amount_1
-#     assert fund_me.get_funder_zk_token_amount(funder_account) == 0
-
-#     # Funder 2 funds ETH
-#     fund_me.fund_eth(sender=another_funder_account, value=eth_amount_2)
-#     assert fund_me.funder_count() == 2
-#     assert fund_me.get_funder_eth_amount(another_funder_account) == eth_amount_2
-#     assert fund_me.get_funder_zk_token_amount(another_funder_account) == 0
-
-#     # Funder 1 funds ZK tokens
-#     mock_erc20.mint(funder_account, zk_amount_1 * 2, sender=owner)
-#     mock_erc20.approve(fund_me.address, zk_amount_1, sender=funder_account)
-#     fund_me.fund_zk_token(zk_amount_1, sender=funder_account)
-#     assert fund_me.funder_count() == 2  # Still 2 distinct funders
-#     assert fund_me.get_funder_eth_amount(funder_account) == eth_amount_1
-#     assert fund_me.get_funder_zk_token_amount(funder_account) == zk_amount_1
-
-#     # Funder 2 funds ZK tokens
-#     mock_erc20.mint(another_funder_account, zk_amount_2 * 2, sender=owner)
-#     mock_erc20.approve(fund_me.address, zk_amount_2, sender=another_funder_account)
-#     fund_me.fund_zk_token(zk_amount_2, sender=another_funder_account)
-#     assert fund_me.funder_count() == 2  # Still 2 distinct funders
-#     assert fund_me.get_funder_eth_amount(another_funder_account) == eth_amount_2
-#     assert fund_me.get_funder_zk_token_amount(another_funder_account) == zk_amount_2
-
-#     # Verify total balances
-#     assert fund_me.balance_of_eth() == eth_amount_1 + eth_amount_2
-#     assert fund_me.balance_of_zk_token() == zk_amount_1 + zk_amount_2
+    # Assert contract balance decreased
+    assert fund_me.balance_of_eth() == contract_eth_balance_before_withdraw - amount
+    # Assert owner's ETH balance increased
+    assert boa.env.get_balance(owner) > initial_owner_balance  # Account for gas fees
+    # Assert event emission
+    assert len(logs) == 1, "Should emit one WithdrawEth event"
+    assert log_to == fund_me.owner(), "Withdrawal recipient should match funder"
+    assert log_amount == amount, "Withdrawn amount should match"
 
 
-# def test_is_funder_internal_function(
-#     fund_me: VyperContract,
-#     funder_account: str,
-#     another_funder_account: str,
-#     owner: str,
-#     mock_erc20: VyperContract,
-# ):
-#     """
-#     Test the internal _is_funder logic.
-#     """
-#     # Initially, no one is a funder
-#     assert fund_me._is_funder(funder_account) == False
-#     assert fund_me._is_funder(another_funder_account) == False
+################################################################
+#                         WITHDRAW ZK                          #
+################################################################
+def test_withdraw_zk_token_not_owner(fund_me, funders):
+    """
+    Test ZK token withdrawal by a non-owner.
+    """
+    with boa.env.prank(funders[0]):
+        with boa.reverts("ownable: caller is not the owner"):
+            fund_me.withdraw_zk_token(MINIMUM_FUNDING_AMOUNT_WEI)
 
-#     # Funder 1 funds ETH
-#     fund_me.fund_eth(sender=funder_account, value=MINIMUM_FUNDING_AMOUNT_WEI + 1)
-#     assert fund_me._is_funder(funder_account) == True
-#     assert fund_me._is_funder(another_funder_account) == False
 
-#     # Funder 2 funds ZK tokens
-#     zk_amount = 10 * 10**ZK_DECIMALS
-#     mock_erc20.mint(another_funder_account, zk_amount * 2, sender=owner)
-#     mock_erc20.approve(fund_me.address, zk_amount, sender=another_funder_account)
-#     fund_me.fund_zk_token(zk_amount, sender=another_funder_account)
-#     assert fund_me._is_funder(funder_account) == True
-#     assert fund_me._is_funder(another_funder_account) == True
+def test_withdraw_zk_token_insufficient_contract_balance(fund_me, owner):
+    """
+    Test ZK token withdrawal when contract has insufficient balance.
+    """
+    with boa.env.prank(owner):
+        with boa.reverts(fund_me.WITHDRAWAL_AMOUNT_EXCEEDS_BALANCE_ERROR()):
+            fund_me.withdraw_zk_token(MINIMUM_FUNDING_AMOUNT_WEI)
 
-#     # If an account has funded 0 ETH and 0 ZK, it should not be a funder
-#     assert fund_me._is_funder(owner) == False  # Assuming owner hasn't funded
+
+def test_withdraw_zk_token_zero_amount(fund_me, mock_zktoken, owner, funders):
+    """
+    Test ZK token withdrawal with zero amount.
+    """
+    # Fund the contract with ZK tokens first
+    with boa.env.prank(funders[0]):
+        mock_zktoken.approve(fund_me.address, MINIMUM_FUNDING_AMOUNT_WEI)
+        fund_me.fund_zk_token(MINIMUM_FUNDING_AMOUNT_WEI)
+
+    # Attempt to withdraw zero amount
+    with boa.env.prank(owner):
+        with boa.reverts(fund_me.INSUFFICIENT_AMOUNT_ERROR()):
+            fund_me.withdraw_zk_token(0)
+
+
+@given(
+    amount=st_boa(
+        "uint256",
+        min_value=MINIMUM_FUNDING_AMOUNT_WEI,
+        max_value=FUNDER_INITIAL_BALANCE_WEI,
+    ),
+    index=st.integers(min_value=0, max_value=FUNDER_COUNT - 1),
+)
+def test_withdraw_zk_token_success_fuzz(
+    fund_me,
+    mock_zktoken,
+    funders,
+    amount: int,
+    index: int,
+):
+    """
+    Test successful ZK token withdrawal.
+    """
+    # Fund the contract first
+    funder_account = funders[index]
+    owner = fund_me.owner()
+    with boa.env.prank(funder_account):
+        mock_zktoken.approve(fund_me.address, amount)
+        fund_me.fund_zk_token(amount)
+
+    initial_owner_zk_balance = mock_zktoken.balanceOf(owner)
+    contract_zk_balance_before_withdraw = fund_me.balance_of_zk_token()
+
+    # Withdraw ZK token
+    with boa.env.prank(owner):
+        fund_me.withdraw_zk_token(amount)
+        logs = fund_me.get_logs()
+        log_to = logs[1].to
+        log_amount = logs[1].amount
+
+    # Assert contract ZK token balance decreased
+    assert fund_me.balance_of_zk_token() == contract_zk_balance_before_withdraw - amount
+    # Assert owner's ZK token balance increased
+    assert mock_zktoken.balanceOf(owner) == initial_owner_zk_balance + amount
+    # Assert event emission
+    assert len(logs) > 0, "Should emit one WithdrawZK event"
+    assert log_to == owner, "Withdrawal recipient should match owner"
+    assert log_amount == amount, "Withdrawn amount should match"
+
+
+################################################################
+#                        VIEW FUNCTIONS                        #
+################################################################
+def test_get_funder_eth_amount(fund_me, funders):
+    """
+    Test get_funder_eth_amount view function.
+    """
+    funder1 = funders[0]
+    funder2 = funders[1]
+    amount1 = 2 * MINIMUM_FUNDING_AMOUNT_WEI
+    amount2 = 3 * MINIMUM_FUNDING_AMOUNT_WEI
+
+    # Initial check
+    assert fund_me.get_funder_eth_amount(funder1) == 0
+    assert fund_me.get_funder_eth_amount(funder2) == 0
+
+    # Fund from funder1
+    with boa.env.prank(funder1):
+        fund_me.fund_eth(value=amount1)
+    assert fund_me.get_funder_eth_amount(funder1) == amount1
+    assert fund_me.get_funder_eth_amount(funder2) == 0
+
+    # Fund more from funder1
+    with boa.env.prank(funder1):
+        fund_me.fund_eth(value=MINIMUM_FUNDING_AMOUNT_WEI)
+    assert (
+        fund_me.get_funder_eth_amount(funder1) == amount1 + MINIMUM_FUNDING_AMOUNT_WEI
+    )
+
+    # Fund from funder2
+    with boa.env.prank(funder2):
+        fund_me.fund_eth(value=amount2)
+    assert fund_me.get_funder_eth_amount(funder2) == amount2
+
+
+def test_get_funder_zk_token_amount(fund_me, mock_zktoken, funders):
+    """
+    Test get_funder_zk_token_amount view function.
+    """
+    funder1 = funders[0]
+    funder2 = funders[1]
+    amount1 = 2 * MINIMUM_FUNDING_AMOUNT_WEI
+    amount2 = 3 * MINIMUM_FUNDING_AMOUNT_WEI
+
+    # Initial check
+    assert fund_me.get_funder_zk_token_amount(funder1) == 0
+    assert fund_me.get_funder_zk_token_amount(funder2) == 0
+
+    # Fund from funder1
+    with boa.env.prank(funder1):
+        mock_zktoken.approve(fund_me.address, amount1)
+        fund_me.fund_zk_token(amount1)
+    assert fund_me.get_funder_zk_token_amount(funder1) == amount1
+    assert fund_me.get_funder_zk_token_amount(funder2) == 0
+
+    # Fund more from funder1
+    with boa.env.prank(funder1):
+        mock_zktoken.approve(fund_me.address, MINIMUM_FUNDING_AMOUNT_WEI)
+        fund_me.fund_zk_token(MINIMUM_FUNDING_AMOUNT_WEI)
+    assert (
+        fund_me.get_funder_zk_token_amount(funder1)
+        == amount1 + MINIMUM_FUNDING_AMOUNT_WEI
+    )
+
+    # Fund from funder2
+    with boa.env.prank(funder2):
+        mock_zktoken.approve(fund_me.address, amount2)
+        fund_me.fund_zk_token(amount2)
+    assert fund_me.get_funder_zk_token_amount(funder2) == amount2
+
+
+def test_get_minimal_funding_amount(fund_me):
+    """
+    Test get_minimal_funding_amount view function.
+    """
+    assert fund_me.get_minimal_funding_amount() == MINIMUM_FUNDING_AMOUNT_WEI
+
+
+def test_get_zk_token_address(fund_me, mock_zktoken):
+    """
+    Test get_zk_token_address view function.
+    """
+    assert fund_me.get_zk_token_address() == mock_zktoken.address

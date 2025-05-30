@@ -1,2 +1,10 @@
 [run]
 plugins = boa.coverage
+omit = 
+    lib/*
+    tests/*
+    utils/*
+
+[report]
+exclude_also =
+    def moccasin_main

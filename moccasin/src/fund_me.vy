@@ -39,6 +39,11 @@ DIRECT_TRANSFER_ERROR: public(constant(
     String[64]
 )) = "fund_me: direct transfers not allowed"
 
+# @dev Withdrawal amount exceeds balance error message.
+WITHDRAWAL_AMOUNT_EXCEEDS_BALANCE_ERROR: public(constant(
+    String[64]
+)) = "fund_me: withdrawal amount exceeds balance"
+
 
 ################################################################
 #                            EVENTS                            #
@@ -188,7 +193,7 @@ def withdraw_eth(_amount: uint256):
         The function is marked as `nonreentrant` to prevent reentrancy attacks.
     """
     ownable._check_owner()
-    assert _amount <= self.balance_of_eth, "fund_me: amount exceeds balance"
+    assert _amount <= self.balance_of_eth, WITHDRAWAL_AMOUNT_EXCEEDS_BALANCE_ERROR
     assert _amount > 0, INSUFFICIENT_AMOUNT_ERROR
 
     # Update the balance before transferring to prevent reentrancy issues.
@@ -216,7 +221,7 @@ def withdraw_zk_token(_amount: uint256):
     ownable._check_owner()
     assert (
         _amount <= self.balance_of_zk_token
-    ), "fund_me: amount exceeds balance"
+    ), WITHDRAWAL_AMOUNT_EXCEEDS_BALANCE_ERROR
     assert _amount > 0, INSUFFICIENT_AMOUNT_ERROR
 
     # Update the balance before transferring to prevent reentrancy issues.
