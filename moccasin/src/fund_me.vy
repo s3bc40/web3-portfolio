@@ -136,7 +136,7 @@ def fund_eth():
         The function is marked as `payable` to allow ETH transfers.
     """
     assert msg.sender != empty(address), ZERO_ADDRESS_ERROR
-    assert msg.value > MINIMUM_FUNDING_AMOUNT_WEI, INSUFFICIENT_AMOUNT_ERROR
+    assert msg.value >= MINIMUM_FUNDING_AMOUNT_WEI, INSUFFICIENT_AMOUNT_ERROR
     amount: uint256 = msg.value
 
     # Increment the total fund amount if this is the first funding from the address.
@@ -160,7 +160,7 @@ def fund_zk_token(_amount: uint256):
         The sender must have approved the contract to spend the specified amount of ZK tokens.
     """
     assert msg.sender != empty(address), ZERO_ADDRESS_ERROR
-    assert _amount > MINIMUM_FUNDING_AMOUNT_WEI, INSUFFICIENT_AMOUNT_ERROR
+    assert _amount >= MINIMUM_FUNDING_AMOUNT_WEI, INSUFFICIENT_AMOUNT_ERROR
 
     # Increment the total fund amount if this is the first funding from the address.
     if self._is_funder(msg.sender) == False:

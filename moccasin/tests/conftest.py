@@ -1,6 +1,10 @@
 import boa
 import pytest
 
+from utils.constants import (
+    FUNDER_COUNT,
+    FUNDER_INITIAL_BALANCE_WEI,
+)
 from moccasin.boa_tools import VyperContract
 from script import deploy_fund_me
 
@@ -30,7 +34,7 @@ def funders() -> list[str]:
     Fixture to provide a list of funders' addresses for testing.
     Returns a list of addresses that will be used as funders.
     """
-    funders = [boa.env.generate_address(f"funder_{i}") for i in range(5)]
+    funders = [boa.env.generate_address(f"funder_{i}") for i in range(FUNDER_COUNT)]
     for funder in funders:
-        boa.env.set_balance(funder, 1000 * 10**18)
+        boa.env.set_balance(funder, FUNDER_INITIAL_BALANCE_WEI)
     return funders
