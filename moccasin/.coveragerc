@@ -4,6 +4,7 @@ omit =
     lib/*
     tests/*
     utils/*
+    __init__.py
 
 [report]
 exclude_also =

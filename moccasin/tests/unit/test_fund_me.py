@@ -58,9 +58,9 @@ def test_fund_eth_zero_address(fund_me):
     """
     Test ETH funding from a zero address.
     """
-    boa.env.set_balance(ZERO_ADDRESS, FUNDER_INITIAL_BALANCE_WEI)
+    boa.env.set_balance(ZERO_ADDRESS.hex(), FUNDER_INITIAL_BALANCE_WEI)
     with boa.reverts(fund_me.ZERO_ADDRESS_ERROR()):
-        fund_me.fund_eth(sender=ZERO_ADDRESS, value=MINIMUM_FUNDING_AMOUNT_WEI)
+        fund_me.fund_eth(sender=ZERO_ADDRESS.hex(), value=MINIMUM_FUNDING_AMOUNT_WEI)
 
 
 @given(
@@ -138,7 +138,7 @@ def test_fund_zk_token_zero_address(fund_me):
     Test ZK token funding from a zero address.
     """
     with boa.reverts(fund_me.ZERO_ADDRESS_ERROR()):
-        fund_me.fund_zk_token(1, sender=ZERO_ADDRESS)
+        fund_me.fund_zk_token(1, sender=ZERO_ADDRESS.hex())
 
 
 @given(
@@ -408,6 +408,43 @@ def test_withdraw_zk_token_success_fuzz(
     assert len(logs) > 0, "Should emit one WithdrawZK event"
     assert log_to == owner, "Withdrawal recipient should match owner"
     assert log_amount == amount, "Withdrawn amount should match"
+
+
+################################################################
+#                     SET ZK TOKEN ADDRESS                     #
+################################################################
+def test_set_zk_token_address_not_owner(fund_me, funders):
+    """
+    Test setting ZK token address by a non-owner.
+    """
+    new_zk_token_address = boa.env.generate_address("new_zk_token")
+    with boa.env.prank(funders[0]):
+        with boa.reverts("ownable: caller is not the owner"):
+            fund_me.set_zk_token_address(new_zk_token_address)
+
+
+def test_set_zk_token_address_zero_address(fund_me, owner):
+    """
+    Test setting ZK token address to zero address.
+    """
+    with boa.env.prank(owner):
+        with boa.reverts(fund_me.ZERO_ADDRESS_ERROR()):
+            fund_me.set_zk_token_address(ZERO_ADDRESS.hex())
+
+
+def test_set_zk_token_address_success(fund_me, owner):
+    """
+    Test setting ZK token address successfully.
+    """
+    new_zk_token_address = boa.env.generate_address("new_zk_token")
+    with boa.env.prank(owner):
+        fund_me.set_zk_token_address(new_zk_token_address)
+
+    # Assert the new ZK token address is set correctly
+    assert fund_me.get_zk_token_address() == new_zk_token_address
+
+    # Assert the contract can still interact with the mock ZK token
+    assert fund_me.get_funder_zk_token_amount(owner) == 0
 
 
 ################################################################

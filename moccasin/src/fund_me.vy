@@ -22,27 +22,29 @@ from ethereum.ercs import IERC20
 #                            ERRORS                            #
 ################################################################
 # @dev Zero address error message.
-ZERO_ADDRESS_ERROR: public(constant(String[64])) = "fund_me: zero address not allowed"
+ZERO_ADDRESS_ERROR: public(
+    constant(String[64])
+) = "fund_me: zero address not allowed"
 
 # @dev Insufficient amount error message.
-INSUFFICIENT_AMOUNT_ERROR: public(constant(
-    String[64]
-)) = "fund_me: insufficient amount sent"
+INSUFFICIENT_AMOUNT_ERROR: public(
+    constant(String[64])
+) = "fund_me: insufficient amount sent"
 
 # @dev Funding transfer failed error message.
-FUNDING_TRANSFER_FAILED_ERROR: public(constant(
-    String[64]
-)) = "fund_me: funding transfer failed"
+FUNDING_TRANSFER_FAILED_ERROR: public(
+    constant(String[64])
+) = "fund_me: funding transfer failed"
 
 # @dev Direct ETH transfer error message.
-DIRECT_TRANSFER_ERROR: public(constant(
-    String[64]
-)) = "fund_me: direct transfers not allowed"
+DIRECT_TRANSFER_ERROR: public(
+    constant(String[64])
+) = "fund_me: direct transfers not allowed"
 
 # @dev Withdrawal amount exceeds balance error message.
-WITHDRAWAL_AMOUNT_EXCEEDS_BALANCE_ERROR: public(constant(
-    String[64]
-)) = "fund_me: withdrawal amount exceeds balance"
+WITHDRAWAL_AMOUNT_EXCEEDS_BALANCE_ERROR: public(
+    constant(String[64])
+) = "fund_me: withdrawal amount exceeds balance"
 
 
 ################################################################
@@ -78,9 +80,6 @@ event WithdrawZK:
 # @dev The minimum funding amount in wei (0.0001 ETH).
 MINIMUM_FUNDING_AMOUNT_WEI: constant(uint256) = 1 * 10**14
 
-# @dev The address of the ZK token contract, immutable to prevent changes after deployment.
-ZK_TOKEN_ADDRESS: immutable(address)
-
 ################################################################
 #                       STATE VARIABLES                        #
 ################################################################
@@ -95,11 +94,16 @@ funder_count: public(uint256)
 
 # @dev ETH funded by each funder.
 #    Allows to track the amount funded by each address and display it.
+# @notice It is meant as an historical record of ETH contributions, not transfers.
 funder_to_eth_funded: HashMap[address, uint256]
 
 # @dev ZK tokens funded by each funder.
 #    Allows to track the amount funded by each address and display it.
+# @notice It is meant as an historical record of ZK token contributions, not transfers.
 funder_to_zk_funded: HashMap[address, uint256]
+
+# @dev The address of the ZK token contract.
+zk_token_address: address
 
 ################################################################
 #                    CONSTRUCTOR & FALLBACK                    #
@@ -115,7 +119,7 @@ def __init__(_zk_token_address: address):
     self.balance_of_eth = 0
     self.balance_of_zk_token = 0
     self.funder_count = 0
-    ZK_TOKEN_ADDRESS = _zk_token_address
+    self.zk_token_address = _zk_token_address
 
 
 @payable
@@ -174,7 +178,7 @@ def fund_zk_token(_amount: uint256):
     self.balance_of_zk_token += _amount
 
     # Transfer the ZK tokens from the sender to the contract.
-    success: bool = extcall IERC20(ZK_TOKEN_ADDRESS).transferFrom(
+    success: bool = extcall IERC20(self.zk_token_address).transferFrom(
         msg.sender, self, _amount
     )
     assert success, FUNDING_TRANSFER_FAILED_ERROR
@@ -193,7 +197,9 @@ def withdraw_eth(_amount: uint256):
         The function is marked as `nonreentrant` to prevent reentrancy attacks.
     """
     ownable._check_owner()
-    assert _amount <= self.balance_of_eth, WITHDRAWAL_AMOUNT_EXCEEDS_BALANCE_ERROR
+    assert (
+        _amount <= self.balance_of_eth
+    ), WITHDRAWAL_AMOUNT_EXCEEDS_BALANCE_ERROR
     assert _amount > 0, INSUFFICIENT_AMOUNT_ERROR
 
     # Update the balance before transferring to prevent reentrancy issues.
@@ -228,13 +234,25 @@ def withdraw_zk_token(_amount: uint256):
     self.balance_of_zk_token -= _amount
 
     # Transfer the specified amount of ZK tokens to the owner.
-    success: bool = extcall IERC20(ZK_TOKEN_ADDRESS).transfer(
+    success: bool = extcall IERC20(self.zk_token_address).transfer(
         ownable.owner, _amount
     )
     assert success, FUNDING_TRANSFER_FAILED_ERROR
 
     # Log the withdrawal event.
     log WithdrawZK(to=ownable.owner, amount=_amount)
+
+
+@external
+def set_zk_token_address(_zk_token_address: address):
+    """
+    @dev Function to set the ZK token address.
+    @param _zk_token_address The new address of the ZK token contract.
+    @notice This function allows the owner to update the ZK token address.
+    """
+    ownable._check_owner()
+    assert _zk_token_address != empty(address), ZERO_ADDRESS_ERROR
+    self.zk_token_address = _zk_token_address
 
 
 ################################################################
@@ -287,6 +305,7 @@ def get_minimal_funding_amount() -> uint256:
     """
     return MINIMUM_FUNDING_AMOUNT_WEI
 
+
 @view
 @external
 def get_zk_token_address() -> address:
@@ -294,4 +313,4 @@ def get_zk_token_address() -> address:
     @dev Returns the address of the ZK token contract.
     @return The address of the ZK token contract.
     """
-    return ZK_TOKEN_ADDRESS
+    return self.zk_token_address
