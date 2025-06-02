@@ -15,3 +15,6 @@ MINIMUM_FUNDING_AMOUNT_WEI = 1 * 10**14  # 0.0001 ETH in wei
 FUNDER_INITIAL_BALANCE_WEI = 1000 * 10**18  # 1000 ETH in wei
 ONE_ETH_IN_WEI = 1 * 10**18  # 1 ETH in wei
 FUNDER_COUNT = 5  # Number of funders to simulate in tests
+FUZZING_FUNDER_COUNT = 10  # Number of funders for fuzzing tests
+FUZZING_MAX_FUNDING_AMOUNT_WEI = 20 * 10**18  # 20 ETH in wei
+FUZZING_MAX_WITHDRAWAL_AMOUNT_WEI = 10 * 10**18  # 10 ETH in wei
