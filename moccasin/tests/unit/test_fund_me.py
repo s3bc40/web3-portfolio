@@ -7,12 +7,16 @@ from hypothesis import strategies as st
 from eth.constants import ZERO_ADDRESS
 from eth.exceptions import Revert
 from moccasin.boa_tools import VyperContract
+from moccasin.config import get_config
 from utils.constants import (
     FUNDER_COUNT,
     MINIMUM_FUNDING_AMOUNT_WEI,
     ONE_ETH_IN_WEI,
     FUNDER_INITIAL_BALANCE_WEI,
 )
+
+
+active_network = get_config().get_active_network()
 
 
 ################################################################
@@ -63,6 +67,9 @@ def test_fund_eth_zero_address(fund_me):
         fund_me.fund_eth(sender=ZERO_ADDRESS.hex(), value=MINIMUM_FUNDING_AMOUNT_WEI)
 
 
+@pytest.mark.skipif(
+    active_network.is_zksync, reason="Fuzzing drain too much on Anvil ZKSync"
+)
 @given(
     index=st.integers(min_value=0, max_value=FUNDER_COUNT - 1),
     amount=st_boa(
@@ -80,6 +87,9 @@ def test_fund_eth_insufficient_amount(fund_me, funders, amount: int, index: int)
         fund_me.fund_eth(sender=funder_account, value=amount)
 
 
+@pytest.mark.skipif(
+    active_network.is_zksync, reason="Fuzzing drain too much on Anvil ZKSync"
+)
 @given(
     index=st.integers(min_value=0, max_value=FUNDER_COUNT - 1),
     amount=st_boa(
@@ -141,6 +151,9 @@ def test_fund_zk_token_zero_address(fund_me):
         fund_me.fund_zk_token(1, sender=ZERO_ADDRESS.hex())
 
 
+@pytest.mark.skipif(
+    active_network.is_zksync, reason="Fuzzing drain too much on Anvil ZKSync"
+)
 @given(
     index=st.integers(min_value=0, max_value=FUNDER_COUNT - 1),
     amount=st_boa(
@@ -158,6 +171,9 @@ def test_fund_zk_token_insufficient_amount(fund_me, funders, amount: int, index:
         fund_me.fund_zk_token(amount, sender=funder_account)
 
 
+@pytest.mark.skipif(
+    active_network.is_zksync, reason="Fuzzing drain too much on Anvil ZKSync"
+)
 @given(
     index=st.integers(min_value=0, max_value=FUNDER_COUNT - 1),
     amount=st_boa(
@@ -291,6 +307,9 @@ def test_withdraw_eth_zero_amount(fund_me, funders):
         fund_me.withdraw_eth(0, sender=fund_me.owner())
 
 
+@pytest.mark.skipif(
+    active_network.is_zksync, reason="Fuzzing drain too much on Anvil ZKSync"
+)
 @given(
     amount=st_boa(
         "uint256",
@@ -365,6 +384,9 @@ def test_withdraw_zk_token_zero_amount(fund_me, mock_zktoken, owner, funders):
             fund_me.withdraw_zk_token(0)
 
 
+@pytest.mark.skipif(
+    active_network.is_zksync, reason="Fuzzing drain too much on Anvil ZKSync"
+)
 @given(
     amount=st_boa(
         "uint256",

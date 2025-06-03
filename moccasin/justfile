@@ -5,3 +5,7 @@
 #   -o pipefail: If any command in a pipeline fails, the entire pipeline fails.
 #   -c: This is required by just to pass the recipe body as a string to the shell.
 set shell := ["bash", "-euo", "pipefail", "-c"]
+
+# Run eravm local unit tests
+test-zk-u:
+  uv run mox test tests/unit --network eravm

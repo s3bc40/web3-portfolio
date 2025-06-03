@@ -11,7 +11,13 @@ from snekmate.tokens import erc20
 
 initializes: ownable
 initializes: erc20[ownable := ownable]
-exports: erc20.__interface__
+exports: (
+    erc20.balanceOf,
+    erc20.approve,
+    erc20.totalSupply,
+    erc20.transfer,
+    erc20.transferFrom,
+)
 
 
 @deploy
@@ -24,3 +30,16 @@ def __init__(
     ownable.__init__()
     erc20.__init__(_name, _symbol, _decimals, "MOCK", "MOCK")
     erc20._mint(msg.sender, _initial_supply)
+
+
+@external
+def mint(
+    _to: address,
+    _amount: uint256,
+):
+    """
+    @notice Mint tokens to a specified address (Mocking).
+    @param _to The address to mint tokens to.
+    @param _amount The amount of tokens to mint.
+    """
+    erc20._mint(_to, _amount)

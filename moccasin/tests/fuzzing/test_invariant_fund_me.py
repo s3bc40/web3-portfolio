@@ -1,9 +1,12 @@
 import boa
+import pytest
 
 from boa.test.strategies import strategy as st_boa
 from hypothesis import assume, settings
 from hypothesis.stateful import RuleBasedStateMachine, rule, invariant, initialize
-from script.mocks import deploy_mock_zk_token
+
+from script import deploy_fund_me
+from src.mocks import mock_zk_token
 from utils.constants import (
     FUNDER_INITIAL_BALANCE_WEI,
     FUZZING_FUNDER_COUNT,
@@ -11,7 +14,6 @@ from utils.constants import (
     FUZZING_MAX_WITHDRAWAL_AMOUNT_WEI,
     MINIMUM_FUNDING_AMOUNT_WEI,
 )
-from script import deploy_fund_me
 
 
 class InvariantTestFundMe(RuleBasedStateMachine):
@@ -34,16 +36,14 @@ class InvariantTestFundMe(RuleBasedStateMachine):
         self.fund_me = deploy_fund_me.deploy()
         self.owner: str = self.fund_me.owner()
         # Deploy the mock ZK token
-        self.mock_zktoken = deploy_mock_zk_token.deploy().at(
-            self.fund_me.get_zk_token_address()
-        )
+        self.mock_zktoken = mock_zk_token.at(self.fund_me.get_zk_token_address())
         # Create a list of funders with initial balances
         self.funders: list[str] = []
         for i in range(FUZZING_FUNDER_COUNT):
             funder_address: str = boa.env.generate_address(f"funder-{i}")
             # Set the balance of the funder to the specified amount
             boa.env.set_balance(funder_address, FUNDER_INITIAL_BALANCE_WEI)
-            boa.deal(self.mock_zktoken, funder_address, FUNDER_INITIAL_BALANCE_WEI)
+            self.mock_zktoken.mint(funder_address, FUNDER_INITIAL_BALANCE_WEI)
             # Append the funder address to the list
             self.funders.append(funder_address)
 

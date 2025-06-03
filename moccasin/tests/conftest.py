@@ -1,10 +1,9 @@
 import boa
 import pytest
 
-# from boa_zksync.contract import ZksyncContract
 from moccasin.boa_tools import VyperContract
 from script import deploy_fund_me
-from script.mocks import deploy_mock_zk_token
+from src.mocks import mock_zk_token
 from utils.constants import (
     FUNDER_COUNT,
     FUNDER_INITIAL_BALANCE_WEI,
@@ -33,13 +32,9 @@ def fund_me() -> VyperContract:
 def mock_zktoken(fund_me) -> VyperContract:
     """Fixture to provide a mock ZK token contract instance for testing.
 
-    Deploys the mock ZK token contract with the owner as the deployer.
+    Deploys the mock ZK token contract and returns its instance.
     """
-    contract = deploy_mock_zk_token.deploy()
-    # if isinstance(contract, ZksyncContract):
-    #     # If the contract is a ZksyncContract, use the vyper_contract attribute
-    #     contract: VyperContract = contract.vyper_contract
-    return contract.at(fund_me.get_zk_token_address())
+    return mock_zk_token.at(fund_me.get_zk_token_address())
 
 
 @pytest.fixture(scope="session")
@@ -52,5 +47,5 @@ def funders(mock_zktoken) -> list[str]:
     for funder in funders:
         boa.env.set_balance(funder, FUNDER_INITIAL_BALANCE_WEI)
         # Fund zk token for each funder
-        boa.deal(mock_zktoken, funder, FUNDER_INITIAL_BALANCE_WEI)
+        mock_zktoken.mint(funder, FUNDER_INITIAL_BALANCE_WEI)
     return funders
