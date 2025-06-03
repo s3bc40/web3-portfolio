@@ -8,19 +8,18 @@ dependencies = ["snekmate"]
 abi = "abis/zksync.json"
 deployer_script = "script/mocks/deploy_mock_zk_token.py"
 
-[networks.pyevm]
-is_zksync = false
-
 [networks.anvil]
 url = "http://127.0.0.1:8545"
 prompt_live = false
 save_to_db = false
 chain_id = 31337
+default_account_name = "$DEFAULT_ACCOUNT_NAME"
+unsafe_password_file = "$UNSAFE_PASSWORD_FILE"
 
-[networks.zksync-sepolia]
-url = "https://sepolia.era.zksync.dev"
-chain_id = 300
-is_zksync = true
-prompt_live = true
+# [networks.zksync-sepolia]
+# url = "https://sepolia.era.zksync.dev"
+# chain_id = 300
+# is_zksync = true
+# prompt_live = true
 
 # You can view all configuration options at https://cyfrin.github.io/moccasin/all_moccasin_toml_parameters.html

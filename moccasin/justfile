@@ -1,0 +1,7 @@
+# Set the default shell for all recipes in this justfile to bash
+# Options:
+#   -e: Exits immediately if a command exits with a non-zero status. This is good for preventing unexpected behavior in scripts.
+#   -u: Treats unset variables and parameters as an error when performing parameter expansion.
+#   -o pipefail: If any command in a pipeline fails, the entire pipeline fails.
+#   -c: This is required by just to pass the recipe body as a string to the shell.
+set shell := ["bash", "-euo", "pipefail", "-c"]
