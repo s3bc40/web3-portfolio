@@ -11,7 +11,14 @@ def deploy() -> VyperContract:
     """
     active_network = get_config().get_active_network()
     zksync_token: VyperContract = active_network.manifest_named("zktoken")
-    return fund_me.deploy(zksync_token.address)
+    fund_me_contract: VyperContract = fund_me.deploy(zksync_token.address)
+    if (
+        active_network.has_explorer()
+        and active_network.is_local_or_forked_network() is False
+    ):
+        result = active_network.moccasin_verify(fund_me_contract)
+        result.wait_for_verification()
+    return fund_me_contract
 
 
 def moccasin_main() -> VyperContract:

@@ -4,10 +4,12 @@ out = "out"
 dot_env = ".env"
 dependencies = ["snekmate"]
 
+# Default zktoken contract config
 [networks.contracts.zktoken]
-abi = "abis/zksync.json"
+abi = "abis/ZKsync.json"
 deployer_script = "script/mocks/deploy_mock_zk_token.py"
 
+# Anvil network configuration
 [networks.anvil]
 url = "http://127.0.0.1:8545"
 prompt_live = false
@@ -16,10 +18,28 @@ chain_id = 31337
 default_account_name = "$DEFAULT_ACCOUNT_NAME"
 unsafe_password_file = "$UNSAFE_PASSWORD_FILE"
 
-# [networks.zksync-sepolia]
-# url = "https://sepolia.era.zksync.dev"
-# chain_id = 300
-# is_zksync = true
-# prompt_live = true
+# ZKSync fork configuration
+[networks.zksync-fork]
+fork = true
+url = "$ZKSYNC_MAINNET_RPC_ALCHEMY"
+chain_id = 324
+is_zksync = true
+default_account_name = "$DEFAULT_ACCOUNT_NAME"
+unsafe_password_file = "$UNSAFE_PASSWORD_FILE"
+
+# ZKSync Sepolia configuration
+[networks.zksync-sepolia]
+url = "$ZKSYNC_SEPOLIA_RPC_ALCHEMY"
+chain_id = 300
+is_zksync = true
+default_account_name = "$DEFAULT_ACCOUNT_NAME_ZKSYNC"
+explorer_uri = "https://sepolia.explorer.zksync.io/"
+explorer_type = "zksyncexplorer"
+prompt_live = true
+save_to_db = true
+live_or_staging = true
+
+[networks.zksync-sepolia.contracts.zktoken]
+address = "$ZKSYNC_SEPOLIA_ZK_TOKEN_ADDRESS"
 
 # You can view all configuration options at https://cyfrin.github.io/moccasin/all_moccasin_toml_parameters.html

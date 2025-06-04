@@ -1,5 +1,4 @@
 import boa
-import pytest
 
 from boa.test.strategies import strategy as st_boa
 from hypothesis import assume, settings
