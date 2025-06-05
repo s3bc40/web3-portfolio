@@ -9,3 +9,7 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 # Run eravm local unit tests
 test-zk-u:
   uv run mox test tests/unit --network eravm
+
+# Run zksync fork unit tests (need fix in mox with `add_account`)
+test-zk-fork:
+  uv run mox test -k test_fund_me_deployed --network zksync-fork

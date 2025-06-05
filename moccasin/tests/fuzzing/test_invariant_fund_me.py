@@ -4,6 +4,7 @@ from boa.test.strategies import strategy as st_boa
 from hypothesis import assume, settings
 from hypothesis.stateful import RuleBasedStateMachine, rule, invariant, initialize
 
+from moccasin.config import get_active_network
 from script import deploy_fund_me
 from src.mocks import mock_zk_token
 from utils.constants import (
@@ -177,5 +178,10 @@ class InvariantTestFundMe(RuleBasedStateMachine):
 
 
 # --- Run the stateful test
+# Get the active network configuration
+active_network = get_active_network()
+# Set the Hypothesis settings for the test by checking if the network is ZKSync
 invariant_test_fund_me = InvariantTestFundMe.TestCase
-invariant_test_fund_me.settings = settings(max_examples=256, stateful_step_count=50)
+invariant_test_fund_me.settings = settings.get_profile(
+    "zksync_invariant" if active_network.is_zksync else "invariant"
+)

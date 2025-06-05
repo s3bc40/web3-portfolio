@@ -7,7 +7,7 @@ from hypothesis import strategies as st
 from eth.constants import ZERO_ADDRESS
 from eth.exceptions import Revert
 from moccasin.boa_tools import VyperContract
-from moccasin.config import get_config
+from moccasin.config import get_active_network
 from utils.constants import (
     FUNDER_COUNT,
     MINIMUM_FUNDING_AMOUNT_WEI,
@@ -16,7 +16,7 @@ from utils.constants import (
 )
 
 
-active_network = get_config().get_active_network()
+active_network = get_active_network()
 
 
 ################################################################

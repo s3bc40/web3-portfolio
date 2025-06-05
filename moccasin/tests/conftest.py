@@ -1,7 +1,9 @@
 import boa
 import pytest
 
+from hypothesis import settings
 from moccasin.boa_tools import VyperContract
+from moccasin.config import get_active_network
 from script import deploy_fund_me
 from src.mocks import mock_zk_token
 from utils.constants import (
@@ -10,6 +12,41 @@ from utils.constants import (
 )
 
 
+# Hypothesis settings
+# @dev see https://hypothesis.readthedocs.io/en/latest/reference/api.html#hypothesis.settings
+settings.register_profile(
+    "invariant",
+    max_examples=256,
+    stateful_step_count=50,
+)
+settings.register_profile(
+    "zksync_fuzzing",
+    max_examples=2,
+    stateful_step_count=1,
+)
+settings.register_profile("zksync_invariant", max_examples=10, stateful_step_count=5)
+
+
+# Pytest hook to configure Hypothesis settings based on the active network
+def pytest_configure(config):
+    """
+    Called after command line options have been parsed and all plugins
+    and initial conftest files been loaded.
+
+    @dev https://docs.pytest.org/en/7.1.x/reference/reference.html#pytest.hookspec.pytest_configure
+    """
+    active_network = get_active_network()
+
+    if active_network.is_zksync:
+        settings.load_profile("zksync_fuzzing")
+        print("\n[Hypothesis] Loaded profile: 'zksync_fuzzing'")
+    else:
+        # Load a default profile or any other desired profile for non-ZKSync networks
+        settings.load_profile("default")  # 'default' is a built-in Hypothesis profile
+        print("\n[Hypothesis] Loaded profile: 'default'")
+
+
+# Fixtures
 @pytest.fixture(scope="session")
 def owner() -> str:
     """Fixture to provide the owner address for testing.

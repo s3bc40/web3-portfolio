@@ -14,7 +14,7 @@ def deploy() -> VyperContract:
     fund_me_contract: VyperContract = fund_me.deploy(zksync_token.address)
     if (
         active_network.has_explorer()
-        and active_network.is_local_or_forked_network() is False
+        and not active_network.is_local_or_forked_network()
     ):
         result = active_network.moccasin_verify(fund_me_contract)
         result.wait_for_verification()

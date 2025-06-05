@@ -21,9 +21,9 @@ unsafe_password_file = "$UNSAFE_PASSWORD_FILE"
 # ZKSync fork configuration
 [networks.zksync-fork]
 fork = true
+is_zksync = true
 url = "$ZKSYNC_MAINNET_RPC_ALCHEMY"
 chain_id = 324
-is_zksync = true
 default_account_name = "$DEFAULT_ACCOUNT_NAME"
 unsafe_password_file = "$UNSAFE_PASSWORD_FILE"
 
