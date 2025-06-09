@@ -12,6 +12,11 @@ from utils.constants import (
 )
 
 
+################################################################
+#                           SETTINGS                           #
+################################################################
+active_network = get_active_network()
+
 # Hypothesis settings
 # @dev see https://hypothesis.readthedocs.io/en/latest/reference/api.html#hypothesis.settings
 settings.register_profile(
@@ -19,12 +24,13 @@ settings.register_profile(
     max_examples=256,
     stateful_step_count=50,
 )
+# @dev set examples to 1 with eravm since not supported with boa-zksync
 settings.register_profile(
     "zksync_fuzzing",
-    max_examples=2,
+    max_examples=1,
     stateful_step_count=1,
 )
-settings.register_profile("zksync_invariant", max_examples=10, stateful_step_count=5)
+settings.register_profile("zksync_invariant", max_examples=1, stateful_step_count=1)
 
 
 # Pytest hook to configure Hypothesis settings based on the active network
@@ -35,8 +41,6 @@ def pytest_configure(config):
 
     @dev https://docs.pytest.org/en/7.1.x/reference/reference.html#pytest.hookspec.pytest_configure
     """
-    active_network = get_active_network()
-
     if active_network.is_zksync:
         settings.load_profile("zksync_fuzzing")
         print("\n[Hypothesis] Loaded profile: 'zksync_fuzzing'")
@@ -46,7 +50,9 @@ def pytest_configure(config):
         print("\n[Hypothesis] Loaded profile: 'default'")
 
 
-# Fixtures
+################################################################
+#                        UNIT FIXTURES                         #
+################################################################
 @pytest.fixture(scope="session")
 def owner() -> str:
     """Fixture to provide the owner address for testing.
@@ -86,3 +92,39 @@ def funders(mock_zktoken) -> list[str]:
         # Fund zk token for each funder
         mock_zktoken.mint(funder, FUNDER_INITIAL_BALANCE_WEI)
     return funders
+
+
+################################################################
+#                       STAGING FIXTURES                       #
+################################################################
+@pytest.mark.staging
+@pytest.mark.ignore_isolation
+@pytest.fixture(scope="module")
+def staging_fund_contract() -> VyperContract:
+    """Fixture to deploy the FundMe contract for staging tests.
+
+    Deploys the FundMe contract using the active network's ZK token address.
+    """
+    return active_network.manifest_named("fund_me")
+
+
+@pytest.mark.staging
+@pytest.mark.ignore_isolation
+@pytest.fixture(scope="module")
+def staging_owner(staging_fund_contract) -> str:
+    """Fixture to provide the owner address for staging tests.
+
+    Returns the address of the owner.
+    """
+    return staging_fund_contract.owner()
+
+
+@pytest.mark.staging
+@pytest.mark.ignore_isolation
+@pytest.fixture(scope="module")
+def staging_zktoken(staging_fund_contract) -> VyperContract:
+    """Fixture to provide a mock ZK token contract instance for staging tests.
+
+    Returns the mock ZK token contract instance used by the FundMe contract.
+    """
+    return active_network.manifest_named("zktoken")

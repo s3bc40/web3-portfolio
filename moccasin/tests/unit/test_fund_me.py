@@ -68,7 +68,8 @@ def test_fund_eth_zero_address(fund_me):
 
 
 @pytest.mark.skipif(
-    active_network.is_zksync, reason="Fuzzing drain too much on Anvil ZKSync"
+    active_network.is_zksync,
+    reason="Fuzzing with anvil zksync does not take hypothesis  settings.",
 )
 @given(
     index=st.integers(min_value=0, max_value=FUNDER_COUNT - 1),
@@ -88,7 +89,8 @@ def test_fund_eth_insufficient_amount(fund_me, funders, amount: int, index: int)
 
 
 @pytest.mark.skipif(
-    active_network.is_zksync, reason="Fuzzing drain too much on Anvil ZKSync"
+    active_network.is_zksync,
+    reason="Fuzzing with anvil zksync does not take hypothesis  settings.",
 )
 @given(
     index=st.integers(min_value=0, max_value=FUNDER_COUNT - 1),
@@ -152,7 +154,8 @@ def test_fund_zk_token_zero_address(fund_me):
 
 
 @pytest.mark.skipif(
-    active_network.is_zksync, reason="Fuzzing drain too much on Anvil ZKSync"
+    active_network.is_zksync,
+    reason="Fuzzing with anvil zksync does not take hypothesis  settings.",
 )
 @given(
     index=st.integers(min_value=0, max_value=FUNDER_COUNT - 1),
@@ -172,7 +175,8 @@ def test_fund_zk_token_insufficient_amount(fund_me, funders, amount: int, index:
 
 
 @pytest.mark.skipif(
-    active_network.is_zksync, reason="Fuzzing drain too much on Anvil ZKSync"
+    active_network.is_zksync,
+    reason="Fuzzing with anvil zksync does not take hypothesis  settings.",
 )
 @given(
     index=st.integers(min_value=0, max_value=FUNDER_COUNT - 1),
@@ -308,7 +312,8 @@ def test_withdraw_eth_zero_amount(fund_me, funders):
 
 
 @pytest.mark.skipif(
-    active_network.is_zksync, reason="Fuzzing drain too much on Anvil ZKSync"
+    active_network.is_zksync,
+    reason="Fuzzing with anvil zksync does not take hypothesis  settings.",
 )
 @given(
     amount=st_boa(
@@ -385,7 +390,8 @@ def test_withdraw_zk_token_zero_amount(fund_me, mock_zktoken, owner, funders):
 
 
 @pytest.mark.skipif(
-    active_network.is_zksync, reason="Fuzzing drain too much on Anvil ZKSync"
+    active_network.is_zksync,
+    reason="Fuzzing with anvil zksync does not take hypothesis  settings.",
 )
 @given(
     amount=st_boa(

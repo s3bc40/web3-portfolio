@@ -4,6 +4,7 @@ out = "out"
 dot_env = ".env"
 dependencies = ["snekmate"]
 
+
 # Default zktoken contract config
 [networks.contracts.zktoken]
 abi = "abis/ZKsync.json"
@@ -27,19 +28,24 @@ chain_id = 324
 default_account_name = "$DEFAULT_ACCOUNT_NAME"
 unsafe_password_file = "$UNSAFE_PASSWORD_FILE"
 
+[networks.zksync-fork.contracts.zktoken]
+address = "$ZKSYNC_MAINNET_ZK_TOKEN_ADDRESS"
+
 # ZKSync Sepolia configuration
 [networks.zksync-sepolia]
 url = "$ZKSYNC_SEPOLIA_RPC_ALCHEMY"
 chain_id = 300
-is_zksync = true
 default_account_name = "$DEFAULT_ACCOUNT_NAME_ZKSYNC"
-explorer_uri = "https://sepolia.explorer.zksync.io/"
-explorer_type = "zksyncexplorer"
+explorer_uri = "https://sepolia.etherscan.io"
+explorer_type = "etherscan"
 prompt_live = true
 save_to_db = true
 live_or_staging = true
 
+[networks.zksync-sepolia.contracts.fund_me]
+# address = "$FUNDME_SEPOLIA_ADDRESS"
+
 [networks.zksync-sepolia.contracts.zktoken]
-address = "$ZKSYNC_SEPOLIA_ZK_TOKEN_ADDRESS"
+# address = "$ZKSYNC_SEPOLIA_ZK_TOKEN_CUSTOM_ADDRESS"
 
 # You can view all configuration options at https://cyfrin.github.io/moccasin/all_moccasin_toml_parameters.html
