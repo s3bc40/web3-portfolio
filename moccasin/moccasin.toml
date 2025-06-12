@@ -19,6 +19,22 @@ chain_id = 31337
 default_account_name = "$DEFAULT_ACCOUNT_NAME"
 unsafe_password_file = "$UNSAFE_PASSWORD_FILE"
 
+# Anvil staging test configuration
+[networks.anvil-staging]
+url = "http://127.0.0.1:8545"
+prompt_live = false
+save_to_db = false
+chain_id = 31337
+default_account_name = "$DEFAULT_ACCOUNT_NAME"
+unsafe_password_file = "$UNSAFE_PASSWORD_FILE"
+live_or_staging = true
+
+[networks.anvil-staging.contracts.fund_me]
+deployer_script = "script/deploy_fund_me.py"
+
+[networks.anvil-staging.contracts.zktoken]
+deployer_script = "script/mocks/deploy_mock_zk_token.py"
+
 # ZKSync fork configuration
 [networks.zksync-fork]
 fork = true
@@ -33,19 +49,20 @@ address = "$ZKSYNC_MAINNET_ZK_TOKEN_ADDRESS"
 
 # ZKSync Sepolia configuration
 [networks.zksync-sepolia]
+is_zksync = true
 url = "$ZKSYNC_SEPOLIA_RPC_ALCHEMY"
 chain_id = 300
 default_account_name = "$DEFAULT_ACCOUNT_NAME_ZKSYNC"
-explorer_uri = "https://sepolia.etherscan.io"
-explorer_type = "etherscan"
+explorer_uri = "https://explorer.sepolia.era.zksync.dev"
+explorer_type = "zksyncexplorer"
 prompt_live = true
 save_to_db = true
 live_or_staging = true
 
 [networks.zksync-sepolia.contracts.fund_me]
-# address = "$FUNDME_SEPOLIA_ADDRESS"
+address = "$FUNDME_SEPOLIA_ADDRESS"
 
 [networks.zksync-sepolia.contracts.zktoken]
-# address = "$ZKSYNC_SEPOLIA_ZK_TOKEN_CUSTOM_ADDRESS"
+address = "$ZKSYNC_SEPOLIA_ZK_TOKEN_CUSTOM_ADDRESS"
 
 # You can view all configuration options at https://cyfrin.github.io/moccasin/all_moccasin_toml_parameters.html

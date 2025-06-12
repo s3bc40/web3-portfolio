@@ -97,8 +97,6 @@ def funders(mock_zktoken) -> list[str]:
 ################################################################
 #                       STAGING FIXTURES                       #
 ################################################################
-@pytest.mark.staging
-@pytest.mark.ignore_isolation
 @pytest.fixture(scope="module")
 def staging_fund_contract() -> VyperContract:
     """Fixture to deploy the FundMe contract for staging tests.
@@ -108,23 +106,21 @@ def staging_fund_contract() -> VyperContract:
     return active_network.manifest_named("fund_me")
 
 
-@pytest.mark.staging
-@pytest.mark.ignore_isolation
 @pytest.fixture(scope="module")
-def staging_owner(staging_fund_contract) -> str:
-    """Fixture to provide the owner address for staging tests.
-
-    Returns the address of the owner.
-    """
-    return staging_fund_contract.owner()
-
-
-@pytest.mark.staging
-@pytest.mark.ignore_isolation
-@pytest.fixture(scope="module")
-def staging_zktoken(staging_fund_contract) -> VyperContract:
+def staging_zktoken() -> VyperContract:
     """Fixture to provide a mock ZK token contract instance for staging tests.
 
     Returns the mock ZK token contract instance used by the FundMe contract.
     """
     return active_network.manifest_named("zktoken")
+
+
+@pytest.fixture(scope="module")
+def staging_owner(staging_fund_contract, staging_zktoken) -> str:
+    """Fixture to provide the owner address for staging tests.
+
+    Returns the address of the owner.
+    """
+    owner: str = staging_fund_contract.owner()
+    staging_zktoken.mint(owner, FUNDER_INITIAL_BALANCE_WEI)
+    return owner
