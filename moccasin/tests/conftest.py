@@ -1,3 +1,5 @@
+# @dev you need to run `anvil --block-time 1` if you run on `anvil-staging` network
+#    you might have to run a few time to let it mine some blocks
 import boa
 import pytest
 
@@ -97,7 +99,7 @@ def funders(mock_zktoken) -> list[str]:
 ################################################################
 #                       STAGING FIXTURES                       #
 ################################################################
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def staging_fund_contract() -> VyperContract:
     """Fixture to deploy the FundMe contract for staging tests.
 
@@ -106,16 +108,17 @@ def staging_fund_contract() -> VyperContract:
     return active_network.manifest_named("fund_me")
 
 
-@pytest.fixture(scope="module")
-def staging_zktoken() -> VyperContract:
+@pytest.fixture(scope="session")
+def staging_zktoken(staging_fund_contract) -> VyperContract:
     """Fixture to provide a mock ZK token contract instance for staging tests.
 
     Returns the mock ZK token contract instance used by the FundMe contract.
     """
-    return active_network.manifest_named("zktoken")
+    # return active_network.manifest_named("zktoken")
+    return mock_zk_token.at(staging_fund_contract.get_zk_token_address())
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def staging_owner(staging_fund_contract, staging_zktoken) -> str:
     """Fixture to provide the owner address for staging tests.
 
