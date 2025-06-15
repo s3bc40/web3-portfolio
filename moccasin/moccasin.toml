@@ -30,9 +30,11 @@ unsafe_password_file = "$UNSAFE_PASSWORD_FILE"
 live_or_staging = true
 
 [networks.anvil-staging.contracts.fund_me]
+# address = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" # @dev for frontend testing
 deployer_script = "script/deploy_fund_me.py"
 
 [networks.anvil-staging.contracts.zktoken]
+# address = "0x5FbDB2315678afecb367f032d93F642f64180aa3" # @dev for frontend testing
 deployer_script = "script/mocks/deploy_mock_zk_token.py"
 
 # ZKSync fork configuration

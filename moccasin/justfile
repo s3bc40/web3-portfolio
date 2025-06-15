@@ -13,3 +13,11 @@ test-zk-u:
 # Run zksync fork unit tests (need fix in mox with `add_account`)
 test-zk-fork:
   uv run mox test -k test_fund_me_deployed --network zksync-fork
+
+# Run anvil staging unit tests
+test-anvil-staging:
+  uv run mox test tests/staging/test_staging_fund_me.py --network anvil-staging
+
+# Run anvil to dump the state of the contract
+anvil-dump:
+  anvil --dump-state fund_me_state.json
