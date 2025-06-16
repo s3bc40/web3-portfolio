@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "anvil-load": "anvil --load-state ./fund_me-state.json --block-time 1"
+    "anvil-load": "anvil --load-state ./fund_me_state.json --block-time 1"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.5",

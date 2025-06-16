@@ -3,15 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useAccount, useWriteContract, useReadContracts } from "wagmi";
 import { parseEther, formatEther } from "viem"; // For converting ETH to wei and vice-versa
-import { FUND_ME_ABI } from "@/utils/constants";
-
-/**
- * Replace with your actual contract ABI
- * You would typically generate this from your compiled Vyper contract.
- */
-
-// Replace with your deployed contract address
-const CONTRACT_ADDRESS = "0xYourContractAddressHere";
+import { FUND_ME_ABI, ZKTOKEN_ABI } from "@/utils/abis";
+import useContractByChain from "@/utils/useContractByChain";
 
 /**
  * DonateClient component
@@ -20,13 +13,20 @@ const CONTRACT_ADDRESS = "0xYourContractAddressHere";
  * @returns {JSX.Element} The rendered client-side donation form and dashboard.
  */
 export default function DonateClient() {
-  const { address, isConnected } = useAccount();
+  // State variables for managing donation input and messages
   const [donationAmount, setDonationAmount] = useState<string>("");
   const [selectedToken, setSelectedToken] = useState<"ETH" | "ZK">("ETH");
   const [message, setMessage] = useState<string>("");
 
+  // Get FundMe contract and ZK token contract addresses
+  const { fundMeContractAddress, zkTokenContractAddress } =
+    useContractByChain();
+
+  // Wagmi hooks for account management
+  const { address, isConnected } = useAccount();
+
   // Wagmi hooks for writing to the contract
-  const { writeContract, isPending, isSuccess, isError, error } =
+  const { writeContract, isPending, isSuccess, isError, error, reset } =
     useWriteContract();
 
   // Wagmi hooks for reading from the contract
@@ -38,35 +38,35 @@ export default function DonateClient() {
   } = useReadContracts({
     contracts: [
       {
-        address: CONTRACT_ADDRESS,
+        address: fundMeContractAddress,
         abi: FUND_ME_ABI,
         functionName: "balance_of_eth",
       },
       {
-        address: CONTRACT_ADDRESS,
+        address: fundMeContractAddress,
         abi: FUND_ME_ABI,
         functionName: "balance_of_zk_token",
       },
       {
-        address: CONTRACT_ADDRESS,
+        address: fundMeContractAddress,
         abi: FUND_ME_ABI,
         functionName: "get_funder_eth_amount",
         args: [address || "0x0000000000000000000000000000000000000000"], // Pass connected address
       },
       {
-        address: CONTRACT_ADDRESS,
+        address: fundMeContractAddress,
         abi: FUND_ME_ABI,
         functionName: "get_funder_zk_token_amount",
         args: [address || "0x0000000000000000000000000000000000000000"], // Pass connected address
       },
       {
-        address: CONTRACT_ADDRESS,
+        address: fundMeContractAddress,
         abi: FUND_ME_ABI,
         functionName: "get_minimal_funding_amount",
       },
     ],
     query: {
-      refetchInterval: 30000, // Refetch every 30 seconds to keep data updated
+      refetchInterval: 5000, // Refetch every 5 seconds to keep data updated
     },
   });
 
@@ -86,27 +86,51 @@ export default function DonateClient() {
     ? formatEther(contractReadData[4].result as bigint)
     : "0.0001";
 
+  // New state to manage the transaction status explicitly
+  const [transactionStatus, setTransactionStatus] = useState<
+    "idle" | "pending" | "success" | "error"
+  >("idle");
+
   useEffect(() => {
-    if (isSuccess) {
+    if (isPending) {
+      setTransactionStatus("pending");
+      setMessage(`Processing your ${selectedToken} donation...`);
+    } else if (isSuccess) {
+      setTransactionStatus("success");
       setMessage(
         `Thank you for your generous donation of ${donationAmount} ${selectedToken}!`,
       );
       setDonationAmount(""); // Clear input after donation
       refetchContractData(); // Refetch contract data to update balances
-    }
-    if (isError) {
+      reset(); // THIS IS THE KEY CHANGE: Reset the wagmi write hook state
+    } else if (isError) {
+      setTransactionStatus("error");
       setMessage(`Donation failed: ${error?.message}`);
+      reset(); // THIS IS ALSO KEY: Reset on error as well
     }
+    // No explicit dependency on 'donationAmount' or 'selectedToken' here for the message,
+    // as it might cause flickering or incorrect messages if they change while a tx is pending.
+    // The message is set based on the state *before* the transaction completes.
   }, [
+    isPending,
     isSuccess,
     isError,
     error,
     donationAmount,
     selectedToken,
     refetchContractData,
+    reset,
   ]);
 
-  const handleDonate = async (e: React.FormEvent) => {
+  /**
+   * Handles the donation submission.
+   * Validates the input, checks contract addresses, and initiates the donation transaction.
+   *
+   * @param {React.FormEvent} e - The form submission event.
+   * @returns {Promise<void>}
+   * @description This function is called when the user submits the donation form.
+   */
+  async function handleDonate(e: React.FormEvent) {
     e.preventDefault();
 
     if (donationAmount === "" || parseFloat(donationAmount) <= 0) {
@@ -118,35 +142,63 @@ export default function DonateClient() {
 
     const amountInWei = parseEther(donationAmount);
 
+    // Validate contract addresses
+    if (!fundMeContractAddress) {
+      setMessage(
+        "FundMe contract address is not set. Please check your configuration.",
+      );
+      return;
+    }
+    if (!zkTokenContractAddress) {
+      setMessage(
+        "ZK token contract address is not set. Please check your configuration.",
+      );
+      return;
+    }
+
+    // Validate minimal funding amount
+    if (amountInWei < parseEther(minimalFundingAmount)) {
+      setMessage(
+        `Minimum donation amount is ${minimalFundingAmount} ${selectedToken}.`,
+      );
+      return;
+    }
+
     try {
+      // If donating ETH, call the fund_eth function
       if (selectedToken === "ETH") {
         writeContract({
-          address: CONTRACT_ADDRESS,
+          address: fundMeContractAddress,
           abi: FUND_ME_ABI,
           functionName: "fund_eth",
           value: amountInWei,
         });
       } else {
-        // ZK token
+        // If donating ZK tokens, approve the contract first
         // Approve the contract to spend ZK tokens on behalf of the user.
-        // await writeContract({
-        //   address: ZK_TOKEN_ADDRESS, // Address of your ZK token contract
-        //   abi: ZK_TOKEN_ABI, // ABI of your ZK token contract (e.g., standard ERC20 ABI)
-        //   functionName: "approve",
-        //   args: [CONTRACT_ADDRESS, amountInWei],
-        // });
+        await writeContract({
+          address: zkTokenContractAddress,
+          abi: ZKTOKEN_ABI,
+          functionName: "approve",
+          args: [fundMeContractAddress, amountInWei],
+        });
 
+        // Then call the fund_zk_token function
         writeContract({
-          address: CONTRACT_ADDRESS,
+          address: fundMeContractAddress,
           abi: FUND_ME_ABI,
           functionName: "fund_zk_token",
           args: [amountInWei],
         });
       }
     } catch (err) {
+      // This catch block will only catch errors that happen *before* the transaction is sent to the wallet (e.g., validation, hook setup issues).
+      // Actual transaction failures (e.g., user rejects, out of gas) are handled by the isError flag from useWriteContract.
       setMessage(`Error preparing transaction: ${(err as Error).message}`);
+      setTransactionStatus("error"); // Set status to error for client-side errors
+      reset(); // Reset if there's an immediate error before transaction send
     }
-  };
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4 text-white">
@@ -225,10 +277,12 @@ export default function DonateClient() {
 
               <button
                 type="submit"
-                disabled={isPending}
+                disabled={isPending || transactionStatus === "pending"}
                 className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-teal-600 px-6 py-3 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isPending ? "Processing..." : `Donate ${selectedToken}`}
+                {isPending || transactionStatus === "pending"
+                  ? "Processing..."
+                  : `Donate ${selectedToken}`}
               </button>
 
               {message && (
