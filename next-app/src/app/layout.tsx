@@ -8,7 +8,7 @@ import Footer from "@/ui/Footer";
 import React from "react";
 import { headers } from "next/headers";
 import { cookieToInitialState } from "wagmi";
-import { wagmiConfig } from "@/wagmi.config";
+import wagmiConfig from "@/wagmi.config";
 
 // Font imports
 const roboto = Roboto({

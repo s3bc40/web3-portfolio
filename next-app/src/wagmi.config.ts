@@ -1,6 +1,9 @@
+"use client";
+
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { http } from 'viem';
 import {
+    Config,
     cookieStorage,
     createStorage
 } from 'wagmi';
@@ -10,7 +13,7 @@ import {
     zksync
 } from 'wagmi/chains';
 
-export const wagmiConfig = getDefaultConfig({
+export default getDefaultConfig({
     appName: 'Portfolio Web3',
     projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
     chains: [
@@ -30,4 +33,4 @@ export const wagmiConfig = getDefaultConfig({
     storage: createStorage({
         storage: cookieStorage,
     }),
-});
+}) as Config; // @dev Type assertion to ensure the config is of type Config
