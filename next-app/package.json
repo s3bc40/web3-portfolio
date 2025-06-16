@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "anvil-load": "anvil --load-state ./fund_me-state.json --block-time 1"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.5",
