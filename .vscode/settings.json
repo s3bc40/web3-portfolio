@@ -1,0 +1,9 @@
+{
+    "files.exclude": {
+        "**/__pycache__": true
+    },
+    "files.associations": {
+        ".coveragerc": "toml"
+    },
+    "vyper.command": "./moccasin/.venv/bin/vyper -p moccasin/lib/github -p moccasin/lib/pypi",
+}

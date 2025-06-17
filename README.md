@@ -1,17 +1,29 @@
 # web3-portfolio
 
-My portfolio website built with Next.js, TypeScript, Tailwind CSS and (coming soon) a Moccasin project to handle the smart contract part of the website.
+This is my personal portfolio website, showcasing my projects and skills, with a focus on Web3 development. The frontend is built with Next.js, TypeScript, and Tailwind CSS, while the smart contract interactions will be handled by a Moccasin project using Vyper.
 
-Check out the website at https://www.s3bc40.com/.
+Check out the live website at: https://www.s3bc40.com/
+
+## Project Structure
+
+The project is organized into two main directories:
+
+- **`next-app/`**: Contains the Next.js frontend application. This is where the UI, components, and client-side logic reside. See the [next-app/README.md](next-app/README.md) for more details on the frontend.
+- **`moccasin/`**: The house the Moccasin project for smart contract development using Vyper. This will handle the backend logic and blockchain interactions.
 
 ## Technologies Used
 
+### Frontend (`next-app`)
+
 - Next.js
-- TypeScript
 - React
+- TypeScript
 - Tailwind CSS
-- Moccasin (coming soon)
+- RainbowKit & Wagmi (for wallet connections)
+- React Icons
 
-## ToDo
+### Backend (`moccasin/`)
 
-- [ ] Create moccasin project to handle the smart contract part of the website (Vyper)
+- Moccasin (Vyper smart contract development framework)
+- Vyper (Smart contract language)
+- Python

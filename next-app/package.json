@@ -6,11 +6,13 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "anvil-load": "anvil --load-state ./fund_me_state.json --block-time 1"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.5",
     "@tanstack/react-query": "^5.76.1",
+    "@wagmi/core": "^2.17.3",
     "next": "15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
