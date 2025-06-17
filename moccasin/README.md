@@ -83,10 +83,3 @@ To run all tests, execute the following command from the project root:
 ```bash
 moccasin test
 ```
-
-## &#x1F3AF; To Do
-
-- [ ] Implement invariant testing with Hypothesis.
-- [ ] Add integration tests for the `FundMe` contract if necessary.
-- [ ] Try to deploy the contract to a testnet (e.g., Sepolia) and interact with it using a frontend.
-- [ ] Try to test on a fork.
