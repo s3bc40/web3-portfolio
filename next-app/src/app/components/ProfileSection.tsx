@@ -20,11 +20,11 @@ export default function ProfileSection() {
         {/* Profile title */}
         <Heading1>s3bc40</Heading1>
         {/* Profile subtitle */}
-        <Heading3>Smart Contract Developer & Security Researcher</Heading3>
+        <Heading3>Secure Smart Contract Engineer</Heading3>
         {/* Profile description */}
         <Body1>
-          Your open-source developer and security researcher, specializing in
-          smart contracts and blockchain technology &#x1F680;
+          Your open-source security minded developer, specializing in smart
+          contracts and blockchain technology &#x1F680;
         </Body1>
         {/* Profile btns */}
         <ProfileButtons />

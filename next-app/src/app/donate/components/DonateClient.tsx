@@ -1,10 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useAccount, useWriteContract, useReadContracts } from "wagmi";
-import { parseEther, formatEther } from "viem"; // For converting ETH to wei and vice-versa
+import {
+  useAccount,
+  useWriteContract,
+  useReadContracts,
+  useWatchBlockNumber,
+} from "wagmi";
+import { parseEther, formatEther } from "viem";
 import { FUND_ME_ABI, ZKTOKEN_ABI } from "@/utils/abis";
 import useContractByChain from "@/utils/useContractByChain";
+import { anvil } from "wagmi/chains"; // Import the foundry chain definition
 
 /**
  * DonateClient component
@@ -23,7 +29,44 @@ export default function DonateClient() {
     useContractByChain();
 
   // Wagmi hooks for account management
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chain } = useAccount();
+
+  // State to track if the specific Anvil chain is active
+  const [isAnvilActive, setIsAnvilActive] = useState(false);
+  // State to manage whether useWatchBlockNumber should be enabled for polling
+  const [shouldWatchBlocks, setShouldWatchBlocks] = useState(false);
+
+  // This will try to enable the block watcher only when connected and on the Anvil chain.
+  // It also sets `isAnvilActive` to false if we disconnect or switch chains.
+  useEffect(() => {
+    const isOnAnvil = isConnected && chain?.id === anvil.id;
+    setShouldWatchBlocks(isOnAnvil);
+    if (!isOnAnvil) {
+      setIsAnvilActive(false); // Reset if not on Anvil or disconnected
+    }
+  }, [isConnected, chain]);
+
+  // --- useWatchBlockNumber for Anvil activity detection ---
+  useWatchBlockNumber({
+    onBlockNumber() {
+      // If we get any block number while connected to Anvil, it's active.
+      if (chain?.id === anvil.id) {
+        setIsAnvilActive(true);
+      } else {
+        // This case should ideally be caught by the `enabled` prop.
+        setIsAnvilActive(false);
+      }
+    },
+    onError(error) {
+      // This will fire if the RPC call fails (e.g., Anvil is not running)
+      console.error("useWatchBlockNumber error:", error); // Keep this for debugging *actual* errors
+      setIsAnvilActive(false); // Mark as inactive on error
+    },
+    // Only enable if connected AND we are specifically targeting the Anvil chain
+    enabled: shouldWatchBlocks,
+    // Add a polling interval. Wagmi internally uses `watchBlockNumber` which polls.
+    pollingInterval: 10000, // Check every 10 seconds
+  });
 
   // Wagmi hooks for writing to the contract
   const { writeContract, isPending, isSuccess, isError, error, reset } =
@@ -66,7 +109,15 @@ export default function DonateClient() {
       },
     ],
     query: {
-      refetchInterval: 5000, // Refetch every 5 seconds to keep data updated
+      // Enable reading contract when:
+      // 1. User is connected to a wallet
+      // 2. FundMe contract address is set
+      // 3. We are not on the Anvil chain
+      // 4. Anvil is active (if we are on the Anvil chain)
+      enabled:
+        isConnected &&
+        !!fundMeContractAddress &&
+        (chain?.id !== anvil.id || isAnvilActive),
     },
   });
 
@@ -102,15 +153,12 @@ export default function DonateClient() {
       );
       setDonationAmount(""); // Clear input after donation
       refetchContractData(); // Refetch contract data to update balances
-      reset(); // THIS IS THE KEY CHANGE: Reset the wagmi write hook state
+      reset();
     } else if (isError) {
       setTransactionStatus("error");
       setMessage(`Donation failed: ${error?.message}`);
-      reset(); // THIS IS ALSO KEY: Reset on error as well
+      reset();
     }
-    // No explicit dependency on 'donationAmount' or 'selectedToken' here for the message,
-    // as it might cause flickering or incorrect messages if they change while a tx is pending.
-    // The message is set based on the state *before* the transaction completes.
   }, [
     isPending,
     isSuccess,
@@ -201,7 +249,7 @@ export default function DonateClient() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4 text-white">
+    <div className="top-6 mt-32 flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4 text-white md:mt-0">
       {/* Connect wallet message */}
       {!isConnected && (
         <div className="flex w-full max-w-md flex-col items-center gap-8 rounded-xl border-2 border-gray-700 bg-gray-800 p-8 shadow-2xl">
@@ -220,7 +268,7 @@ export default function DonateClient() {
         <div className="max-w-6xlxl grid w-full grid-cols-1 gap-8 md:grid-cols-2">
           {/* Donation Block */}
           <div className="flex flex-col items-center gap-8 rounded-xl border-2 border-gray-700 bg-gray-800 p-8 shadow-2xl">
-            <h1 className="bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-4xl font-extrabold text-transparent">
+            <h1 className="bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-center text-4xl font-extrabold text-transparent">
               Support My Work
             </h1>
             <p className="text-center text-lg text-gray-300">
@@ -298,9 +346,15 @@ export default function DonateClient() {
 
           {/* Dashboard Block */}
           <div className="flex flex-col items-center gap-8 rounded-xl border-2 border-gray-700 bg-gray-800 p-8 shadow-2xl">
-            <h2 className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-3xl font-extrabold text-transparent">
+            <h2 className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-center text-3xl font-extrabold text-transparent">
               Donation Dashboard
             </h2>
+            {chain?.id === anvil.id && !isAnvilActive && (
+              <p className="text-yellow-400">
+                Waiting for Anvil to start or connect to the correct chain (ID:{" "}
+                {anvil.id})...
+              </p>
+            )}
             {isReadingContract && (
               <p className="text-gray-400">Loading dashboard data...</p>
             )}

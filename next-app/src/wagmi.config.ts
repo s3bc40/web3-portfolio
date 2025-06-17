@@ -21,9 +21,10 @@ export default getDefaultConfig({
     ],
     transports: {
         // Transport configuration for each chain
-        // @dev If the environment variable is not set, it will use the default transport
-        [anvil.id]: http(process.env.NEXT_ANVIL_RPC_URL || undefined),
-        [zksyncSepoliaTestnet.id]: http(process.env.NEXT_ALCHEMY_ZKSYNC_SEPOLIA_RPC_URL || undefined),
+        // @dev not using custom RPC URLs, but in real-world applications, you would replace `http()` with your custom RPC URLs.
+        //    Since it is client-side, we would need to use a proxy to avoid exposing the RPC URLs.
+        [anvil.id]: http(),
+        [zksyncSepoliaTestnet.id]: http(),
     },
     ssr: true,
     // Persistence using Cookies

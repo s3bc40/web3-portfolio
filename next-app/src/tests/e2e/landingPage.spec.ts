@@ -22,8 +22,8 @@ test('should display the profile section with correct information', async ({ pag
   await expect(profileLocator).toBeVisible();
   // Check for specific text in the ProfileSection
   await expect(profileLocator.getByText('s3bc40')).toBeVisible();
-  await expect(profileLocator.getByText('Smart Contract Developer & Security Researcher')).toBeVisible();
-  await expect(profileLocator.getByText('Your open-source developer and security researcher, specializing in smart contracts and blockchain')).toBeVisible();
+  await expect(profileLocator.getByText('Secure Smart Contract Engineer')).toBeVisible();
+  await expect(profileLocator.getByText('Your open-source security minded developer, specializing in smart contracts and blockchain')).toBeVisible();
   await expect(profileLocator.getByAltText("Avatar")).toBeVisible();
 });
 
