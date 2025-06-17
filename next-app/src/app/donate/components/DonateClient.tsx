@@ -244,7 +244,6 @@ export default function DonateClient() {
       formatEther((results[2] as bigint) || BigInt(0)),
       formatEther((results[3] as bigint) || BigInt(0)),
       formatEther((results[4] as bigint) || BigInt(0)),
-      formatEther((results[6] as bigint) || BigInt(0)),
     ];
   }, [contractReadData]);
 
