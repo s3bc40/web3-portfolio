@@ -270,9 +270,7 @@ export default function DonateClient() {
     }
     // Stage 3: Error during approval write or confirmation
     else if (isApproveWriteError || isApproveConfirmError) {
-      setMessage(
-        `ZK approval failed: ${approveWriteError?.message || approveConfirmError?.message || "Transaction reverted."}`,
-      );
+      setMessage(`ZK approval failed`);
       resetApproveWrite(); // Reset error state
     }
   }, [
@@ -307,13 +305,7 @@ export default function DonateClient() {
     }
     // Stage 3: Error during donation write or confirmation
     else if (isFundZkWriteError || isFundZkConfirmError) {
-      setMessage(
-        `ZK donation failed: ${
-          fundZkWriteError?.message ||
-          fundZkConfirmError?.message ||
-          "Transaction reverted."
-        }`,
-      );
+      setMessage(`ZK donation failed`);
       resetFundZkWrite(); // Reset error state
     }
   }, [
@@ -346,13 +338,7 @@ export default function DonateClient() {
     }
     // Stage 3: Error during donation write or confirmation
     else if (isFundEthWriteError || isFundEthConfirmError) {
-      setMessage(
-        `ETH donation failed: ${
-          fundEthWriteError?.message ||
-          fundEthConfirmError?.message ||
-          "Transaction reverted."
-        }`,
-      );
+      setMessage(`ETH donation failed`);
       resetFundEthWrite(); // Reset error state
     }
   }, [
